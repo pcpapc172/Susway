@@ -56,7 +56,7 @@ public class CoinMagnet : CharacterModifier
 		characterAnimation.Play("hold_magnet");
 		Powerup = GameStats.Instance.TriggerPowerup(PowerupType.coinmagnet);
 		coinMagnetCollider.OnEnter = CoinHit;
-		coinMagnetCollider.collider.enabled = true;
+		coinMagnetCollider.GetComponent<Collider>().enabled = true;
 		base.enabled = true;
 		stop = StopSignal.DONT_STOP;
 		while (Powerup.timeLeft > 0f && stop == StopSignal.DONT_STOP)
@@ -64,7 +64,7 @@ public class CoinMagnet : CharacterModifier
 			coinEFX.position = powerupMesh.transform.position;
 			yield return 0;
 		}
-		coinMagnetCollider.collider.enabled = false;
+		coinMagnetCollider.GetComponent<Collider>().enabled = false;
 		base.enabled = false;
 		powerupMesh.active = false;
 		coinEFX.localPosition = CharacterPickupParticles.coinEfxOffset;
@@ -90,7 +90,7 @@ public class CoinMagnet : CharacterModifier
 		Coin component = collider.GetComponent<Coin>();
 		if (component != null)
 		{
-			component.collider.enabled = false;
+			component.GetComponent<Collider>().enabled = false;
 			StartCoroutine(Pull(component));
 		}
 	}

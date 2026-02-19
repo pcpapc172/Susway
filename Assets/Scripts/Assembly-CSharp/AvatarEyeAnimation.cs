@@ -146,14 +146,14 @@ public class AvatarEyeAnimation : MonoBehaviour
 			}
 			if (Time.time < blinkEndTime)
 			{
-				if (!closedEyes.renderer.enabled)
+				if (!closedEyes.GetComponent<Renderer>().enabled)
 				{
-					closedEyes.renderer.enabled = true;
+					closedEyes.GetComponent<Renderer>().enabled = true;
 				}
 			}
 			else
 			{
-				closedEyes.renderer.enabled = false;
+				closedEyes.GetComponent<Renderer>().enabled = false;
 				blinkWaitEndTime = Time.time + Random.Range(blinkWaitTimeMin, blinkWaitTimeMax);
 				blinkEndTime = blinkWaitEndTime + blinkTime;
 			}

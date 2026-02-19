@@ -26,12 +26,12 @@ public class HiResScreenShots : MonoBehaviour
 		if (takeHiResShot)
 		{
 			RenderTexture renderTexture = new RenderTexture(resWidth, resHeight, 24);
-			base.camera.targetTexture = renderTexture;
+			base.GetComponent<Camera>().targetTexture = renderTexture;
 			Texture2D texture2D = new Texture2D(resWidth, resHeight, TextureFormat.RGB24, false);
-			base.camera.Render();
+			base.GetComponent<Camera>().Render();
 			RenderTexture.active = renderTexture;
 			texture2D.ReadPixels(new Rect(0f, 0f, resWidth, resHeight), 0, 0);
-			base.camera.targetTexture = null;
+			base.GetComponent<Camera>().targetTexture = null;
 			RenderTexture.active = null;
 			UnityEngine.Object.Destroy(renderTexture);
 			byte[] bytes = texture2D.EncodeToPNG();

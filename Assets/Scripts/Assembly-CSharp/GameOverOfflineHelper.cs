@@ -57,9 +57,9 @@ public class GameOverOfflineHelper : MonoBehaviour
 		{
 			NGUITools.AddWidgetCollider(FacebookLoginButton);
 		}
-		else if (FacebookLoginButton.collider != null)
+		else if (FacebookLoginButton.GetComponent<Collider>() != null)
 		{
-			Object.Destroy(FacebookLoginButton.collider);
+			Object.Destroy(FacebookLoginButton.GetComponent<Collider>());
 		}
 	}
 }

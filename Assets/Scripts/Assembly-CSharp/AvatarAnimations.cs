@@ -133,7 +133,7 @@ public class AvatarAnimations : MonoBehaviour
 	public void PauseIdleAnimations()
 	{
 		Paused = true;
-		foreach (AnimationState item in Target.animation)
+		foreach (AnimationState item in Target.GetComponent<Animation>())
 		{
 			item.speed = 0f;
 		}
@@ -142,7 +142,7 @@ public class AvatarAnimations : MonoBehaviour
 	public void ResumeIdleAnimations()
 	{
 		Paused = false;
-		foreach (AnimationState item in Target.animation)
+		foreach (AnimationState item in Target.GetComponent<Animation>())
 		{
 			item.speed = 1f;
 		}

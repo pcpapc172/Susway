@@ -42,7 +42,7 @@ public class TutorialEvent : MonoBehaviour
 		{
 			if (_mesh == null)
 			{
-				_mesh = Camera.main.gameObject.transform.FindChild("arrow").gameObject;
+				_mesh = Camera.main.gameObject.transform.Find("arrow").gameObject;
 			}
 			return _mesh;
 		}
@@ -73,7 +73,7 @@ public class TutorialEvent : MonoBehaviour
 		yield return StartCoroutine(pTween.To(time, delegate(float t)
 		{
 			mesh.transform.localPosition = Vector3.Lerp(pos - mesh.transform.up * 5f, pos + mesh.transform.up * 5f, t);
-			mesh.renderer.material.mainTextureOffset = Vector2.Lerp(Vector2.zero, new Vector2(0f, -0.02f), t);
+			mesh.GetComponent<Renderer>().material.mainTextureOffset = Vector2.Lerp(Vector2.zero, new Vector2(0f, -0.02f), t);
 		}));
 		mesh.active = false;
 	}

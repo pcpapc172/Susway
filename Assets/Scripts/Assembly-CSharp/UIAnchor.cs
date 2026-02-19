@@ -39,13 +39,13 @@ public class UIAnchor : MonoBehaviour
 
 	private void Awake()
 	{
-		mAnim = base.animation;
+		mAnim = base.GetComponent<Animation>();
 	}
 
 	private void Start()
 	{
 		mRoot = NGUITools.FindInParents<UIRoot>(base.gameObject);
-		mIsWindows = Application.platform == RuntimePlatform.WindowsPlayer || Application.platform == RuntimePlatform.WindowsWebPlayer || Application.platform == RuntimePlatform.WindowsEditor;
+		mIsWindows = Application.platform == RuntimePlatform.WindowsPlayer || Application.platform == RuntimePlatform.WebGLPlayer || Application.platform == RuntimePlatform.WindowsEditor;
 		if (uiCamera == null)
 		{
 			uiCamera = NGUITools.FindCameraForLayer(base.gameObject.layer);

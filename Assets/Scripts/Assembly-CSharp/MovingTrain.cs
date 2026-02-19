@@ -127,7 +127,7 @@ public class MovingTrain : MonoBehaviour
 	{
 		foreach (MovingTrain activeTrain in activeTrains)
 		{
-			if (activeTrain.collider.bounds.min.z - characterController.transform.position.z < autoPilotActivationDistance)
+			if (activeTrain.GetComponent<Collider>().bounds.min.z - characterController.transform.position.z < autoPilotActivationDistance)
 			{
 				activeTrain.autoPilot = true;
 			}

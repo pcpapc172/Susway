@@ -66,7 +66,7 @@ public class Sound
 		audioSource.rolloffMode = rolloff;
 		audioSource.volume = Random.Range(minVolume, maxVolume);
 		audioSource.pitch = Random.Range(minPitch, maxPitch);
-		audioSource.audio.Play();
+		audioSource.GetComponent<AudioSource>().Play();
 		yield return new WaitForSeconds(audioSource.clip.length + 0.1f);
 		if (destroyAfterPlay)
 		{

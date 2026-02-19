@@ -92,11 +92,11 @@ public class Settings : MonoBehaviour
 	{
 		if (audioListener == null)
 		{
-			audioListener = NGUITools.AddChild(Camera.mainCamera.gameObject).AddComponent<AudioListener>();
+			audioListener = NGUITools.AddChild(Camera.main.gameObject).AddComponent<AudioListener>();
 		}
 		else
 		{
-			audioListener.transform.parent = Camera.mainCamera.transform;
+			audioListener.transform.parent = Camera.main.transform;
 			audioListener.transform.localPosition = Vector3.zero;
 		}
 		LoadOptionsIfNeeded();

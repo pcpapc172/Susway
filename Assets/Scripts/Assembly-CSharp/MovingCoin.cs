@@ -87,7 +87,7 @@ public class MovingCoin : MonoBehaviour
 	{
 		foreach (MovingCoin activecoin in activecoins)
 		{
-			if (activecoin.collider.transform.position.z - characterController.transform.position.z < autoPilotActivationDistance)
+			if (activecoin.GetComponent<Collider>().transform.position.z - characterController.transform.position.z < autoPilotActivationDistance)
 			{
 				activecoin.autoPilot = true;
 			}

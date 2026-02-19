@@ -42,7 +42,7 @@ public class DoubleCoinUpgradeHelper : DiscountButton
 		{
 			doubleCoinVersion = "com.kiloo.subways.doublecoins";
 			InAppManager instance = InAppManager.Instance;
-			instance.onPurchaseSuccess = (Action)Delegate.Remove(instance.onPurchaseSuccess, new Action(this, (IntPtr)__ldftn(DoubleCoinUpgradeHelper._Setup)));
+			instance.onPurchaseSuccess = (Action)Delegate.Remove(instance.onPurchaseSuccess, new Action(this._SetupNoArgs));
 			ShowNoDiscount(doubleCoinVersion, string.Empty);
 			fillColorSprite.spriteName = "button_check_grey";
 			fillColorSprite.pivot = UIWidget.Pivot.Center;
@@ -86,11 +86,12 @@ public class DoubleCoinUpgradeHelper : DiscountButton
 		InAppManager instance2 = InAppManager.Instance;
 		instance2.onProductRequestSuccess = (Action)Delegate.Combine(instance2.onProductRequestSuccess, new Action(UpdatePrice));
 	}
+	private void _SetupNoArgs() { _Setup(); }
 
 	public unsafe void Init()
 	{
 		InAppManager instance = InAppManager.Instance;
-		instance.onPurchaseSuccess = (Action)Delegate.Combine(instance.onPurchaseSuccess, new Action(this, (IntPtr)__ldftn(DoubleCoinUpgradeHelper._Setup)));
+		instance.onPurchaseSuccess = (Action)Delegate.Combine(instance.onPurchaseSuccess, new Action(this._SetupNoArgs));
 		inited = true;
 		_Setup();
 	}

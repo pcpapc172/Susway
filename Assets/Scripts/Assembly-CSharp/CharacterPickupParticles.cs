@@ -71,9 +71,9 @@ public class CharacterPickupParticles : MonoBehaviour
 	{
 		float zAngle = Random.Range(0f, 360f);
 		CoinEFX.transform.Rotate(0f, 0f, zAngle);
-		CoinEFX.animation.Stop("pickup");
-		CoinEFX.animation.Play("pickup");
-		StartCoroutine(AnimateAlpha(CoinEFX, CoinEFX.animation["pickup"].length));
+		CoinEFX.GetComponent<Animation>().Stop("pickup");
+		CoinEFX.GetComponent<Animation>().Play("pickup");
+		StartCoroutine(AnimateAlpha(CoinEFX, CoinEFX.GetComponent<Animation>()["pickup"].length));
 	}
 
 	public void PickedUpPowerUp()
@@ -87,16 +87,16 @@ public class CharacterPickupParticles : MonoBehaviour
 		DoCoinEFX();
 		float zAngle = Random.Range(0f, 360f);
 		PowerUpEFX.transform.Rotate(0f, 0f, zAngle);
-		PowerUpEFX.animation.Stop("pickup");
-		PowerUpEFX.animation.Play("pickup");
-		StartCoroutine(AnimateAlpha(PowerUpEFX, PowerUpEFX.animation["pickup"].length));
+		PowerUpEFX.GetComponent<Animation>().Stop("pickup");
+		PowerUpEFX.GetComponent<Animation>().Play("pickup");
+		StartCoroutine(AnimateAlpha(PowerUpEFX, PowerUpEFX.GetComponent<Animation>()["pickup"].length));
 	}
 
 	private IEnumerator AnimateAlpha(GameObject efx, float time)
 	{
 		return pTween.To(time, delegate(float t)
 		{
-			efx.renderer.sharedMaterial.SetColor("_MainColor", Color.Lerp(Color.white, Color.black, t));
+			efx.GetComponent<Renderer>().sharedMaterial.SetColor("_MainColor", Color.Lerp(Color.white, Color.black, t));
 		});
 	}
 

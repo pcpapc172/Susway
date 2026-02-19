@@ -98,7 +98,7 @@ public class FollowingGuard : MonoBehaviour
 			enemiesStartPos[i] = enemies[i].position;
 		}
 		x = new SmoothDampFloat(0f, xSmoothTime);
-		base.audio.volume = guardProximityLoopVolume;
+		base.GetComponent<AudioSource>().volume = guardProximityLoopVolume;
 		Game obj = game;
 		obj.OnPauseChange = (Game.OnPauseChangeDelegate)Delegate.Combine(obj.OnPauseChange, new Game.OnPauseChangeDelegate(HandleOnPauseChange));
 		CatchAnimationSet[] array = caughtLeft;
@@ -141,9 +141,9 @@ public class FollowingGuard : MonoBehaviour
 	{
 		if (pause)
 		{
-			if (base.audio.isPlaying)
+			if (base.GetComponent<AudioSource>().isPlaying)
 			{
-				base.audio.Pause();
+				base.GetComponent<AudioSource>().Pause();
 			}
 			isPaused = true;
 		}
@@ -151,7 +151,7 @@ public class FollowingGuard : MonoBehaviour
 		{
 			if (isPaused)
 			{
-				base.audio.Play();
+				base.GetComponent<AudioSource>().Play();
 			}
 			isPaused = false;
 		}
@@ -197,16 +197,16 @@ public class FollowingGuard : MonoBehaviour
 			StopAllCoroutines();
 			guardAnimation.Play("Guard_grap after");
 			guardAnimation.PlayQueued("Guard_Run");
-			base.audio.timeSamples = UnityEngine.Random.Range(0, base.audio.timeSamples);
-			base.audio.Play();
-			base.audio.pitch = UnityEngine.Random.Range(0.9f, 1.05f);
+			base.GetComponent<AudioSource>().timeSamples = UnityEngine.Random.Range(0, base.GetComponent<AudioSource>().timeSamples);
+			base.GetComponent<AudioSource>().Play();
+			base.GetComponent<AudioSource>().pitch = UnityEngine.Random.Range(0.9f, 1.05f);
 			StartCoroutine(pTween.To(duration, delegate(float t)
 			{
 				distanceToCharacter = Mathf.SmoothStep(distanceFrom, distanceToCharacterMin, t);
 			}));
 			StartCoroutine(pTween.To(duration, delegate(float t)
 			{
-				base.audio.volume = Mathf.SmoothStep(0f, guardProximityLoopVolume, t);
+				base.GetComponent<AudioSource>().volume = Mathf.SmoothStep(0f, guardProximityLoopVolume, t);
 			}));
 			closeToCharacter = true;
 		}
@@ -234,9 +234,9 @@ public class FollowingGuard : MonoBehaviour
 			}));
 			yield return StartCoroutine(pTween.To(duration * 2f, delegate(float t)
 			{
-				base.audio.volume = Mathf.SmoothStep(guardProximityLoopVolume, 0f, t);
+				base.GetComponent<AudioSource>().volume = Mathf.SmoothStep(guardProximityLoopVolume, 0f, t);
 			}));
-			base.audio.Stop();
+			base.GetComponent<AudioSource>().Stop();
 			if (!game.isDead)
 			{
 				ShowEnemies(false);
@@ -246,7 +246,7 @@ public class FollowingGuard : MonoBehaviour
 
 	public void MuteProximityLoop()
 	{
-		base.audio.Stop();
+		base.GetComponent<AudioSource>().Stop();
 	}
 
 	public void PlayIntro()
@@ -265,7 +265,7 @@ public class FollowingGuard : MonoBehaviour
 
 	public void CatchPlayer(float pos)
 	{
-		base.audio.Stop();
+		base.GetComponent<AudioSource>().Stop();
 		StopAllCoroutines();
 		character.characterAnimation.Stop(previusAvatarCaughtLeft);
 		character.characterAnimation.Stop(previusAvatarCaughtRight);
@@ -311,7 +311,7 @@ public class FollowingGuard : MonoBehaviour
 
 	public void HitByTrainSequence()
 	{
-		base.audio.Stop();
+		base.GetComponent<AudioSource>().Stop();
 		StartCoroutine(HitByTrainSequenceCoroutine());
 	}
 

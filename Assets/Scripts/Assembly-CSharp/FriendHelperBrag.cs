@@ -136,9 +136,9 @@ public class FriendHelperBrag : MonoBehaviour
 
 	private void CompletedBragging()
 	{
-		if (_braggable && base.gameObject.collider != null)
+		if (_braggable && base.gameObject.GetComponent<Collider>() != null)
 		{
-			Object.Destroy(base.gameObject.collider);
+			Object.Destroy(base.gameObject.GetComponent<Collider>());
 		}
 	}
 

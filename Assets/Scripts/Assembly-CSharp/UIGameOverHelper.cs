@@ -79,7 +79,7 @@ public class UIGameOverHelper : MonoBehaviour
 		instance.onCoinsChanged = (Action)Delegate.Combine(instance.onCoinsChanged, new Action(OnCoinsChanged));
 		Missions instance2 = Missions.Instance;
 		instance2.onMissionComplete = (Missions.MissionCompleteHandler)Delegate.Combine(instance2.onMissionComplete, new Missions.MissionCompleteHandler(OnMissionComplete));
-		SocialManager.instance.AddFriendsConsolidatedHandler(new Action(this, (IntPtr)__ldftn(UIGameOverHelper.ReloadFriends)));
+		SocialManager.instance.AddFriendsConsolidatedHandler(new Action(this.ReloadFriends));
 		InAppManager instance3 = InAppManager.Instance;
 		instance3.onPurchaseSuccess = (Action)Delegate.Combine(instance3.onPurchaseSuccess, new Action(UpdateUpgradeSticker));
 		InAppManager instance4 = InAppManager.Instance;
@@ -96,7 +96,7 @@ public class UIGameOverHelper : MonoBehaviour
 			instance.onCoinsChanged = (Action)Delegate.Remove(instance.onCoinsChanged, new Action(OnCoinsChanged));
 			Missions instance2 = Missions.Instance;
 			instance2.onMissionComplete = (Missions.MissionCompleteHandler)Delegate.Remove(instance2.onMissionComplete, new Missions.MissionCompleteHandler(OnMissionComplete));
-			SocialManager.instance.RemoveFriendsConsolidatedHandler(new Action(this, (IntPtr)__ldftn(UIGameOverHelper.ReloadFriends)));
+			SocialManager.instance.RemoveFriendsConsolidatedHandler(new Action(this.ReloadFriends));
 			InAppManager instance3 = InAppManager.Instance;
 			instance3.onPurchaseSuccess = (Action)Delegate.Remove(instance3.onPurchaseSuccess, new Action(UpdateUpgradeSticker));
 			InAppManager instance4 = InAppManager.Instance;
@@ -172,11 +172,17 @@ public class UIGameOverHelper : MonoBehaviour
 		UpdateUpgradeSticker();
 	}
 
-	private void ReloadFriends(bool delay = true)
-	{
-		StopCoroutine("CorouReloadFriends");
-		StartCoroutine("CorouReloadFriends", delay);
-	}
+    public void ReloadFriends()
+    {
+        // Parameterless overload so this method can be used with System.Action delegates.
+        ReloadFriends(false);
+    }
+
+    private void ReloadFriends(bool delay = true)
+    {
+        StopCoroutine("CorouReloadFriends");
+        StartCoroutine("CorouReloadFriends", delay);
+    }
 
 	private IEnumerator CorouReloadFriends(bool framedelay)
 	{
@@ -220,9 +226,9 @@ public class UIGameOverHelper : MonoBehaviour
 			doubleCoinSprite.spriteName = "scoreboard_doublecoins_overlay";
 			collectedCoinLabel.color = yellow;
 			doubleCoinSprite.color = yellow;
-			if (doubleCoinSprite.collider != null)
+			if (doubleCoinSprite.GetComponent<Collider>() != null)
 			{
-				UnityEngine.Object.Destroy(doubleCoinSprite.collider);
+				UnityEngine.Object.Destroy(doubleCoinSprite.GetComponent<Collider>());
 			}
 		}
 		else

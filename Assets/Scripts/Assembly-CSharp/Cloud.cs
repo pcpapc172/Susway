@@ -6,7 +6,7 @@ public class Cloud : MonoBehaviour
 
 	private void Awake()
 	{
-		cameraTransform = Camera.mainCamera.transform;
+		cameraTransform = Camera.main.transform;
 	}
 
 	private void OnBecameVisible()

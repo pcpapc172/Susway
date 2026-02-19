@@ -10,6 +10,6 @@ public class CameraCulling : MonoBehaviour
 	{
 		distances = new float[32];
 		distances[LayerMask.NameToLayer("TransparentFX")] = distance;
-		base.camera.layerCullDistances = distances;
+		base.GetComponent<Camera>().layerCullDistances = distances;
 	}
 }

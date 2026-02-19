@@ -11,7 +11,7 @@ public class Tunnel : MonoBehaviour
 	private void Awake()
 	{
 		game = Game.Instance;
-		tunnelLength = base.collider.bounds.size.z;
+		tunnelLength = base.GetComponent<Collider>().bounds.size.z;
 	}
 
 	private void OnTriggerEnter(Collider collider)

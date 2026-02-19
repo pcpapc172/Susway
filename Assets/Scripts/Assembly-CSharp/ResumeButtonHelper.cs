@@ -57,9 +57,9 @@ public class ResumeButtonHelper : MonoBehaviour
 	{
 		if (buttonEnabled)
 		{
-			if (base.gameObject.collider != null)
+			if (base.gameObject.GetComponent<Collider>() != null)
 			{
-				Object.Destroy(base.gameObject.collider);
+				Object.Destroy(base.gameObject.GetComponent<Collider>());
 			}
 			initColor = icon.color;
 			icon.color = Color.gray;

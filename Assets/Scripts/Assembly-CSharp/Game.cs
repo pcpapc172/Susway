@@ -557,15 +557,15 @@ public class Game : MonoBehaviour
 		character.StopAllCoroutines();
 		character.transform.position = Vector3.zero + new Vector3(0f, 0.8f, 0f);
 		characterAnimation.transform.rotation = Quaternion.identity;
-		character.sprayCanModel.renderer.enabled = true;
+		character.sprayCanModel.GetComponent<Renderer>().enabled = true;
 		ParticleSystem[] componentsInChildren = character.sprayCanModel.GetComponentsInChildren<ParticleSystem>();
 		foreach (ParticleSystem particleSystem in componentsInChildren)
 		{
 			particleSystem.enableEmission = false;
 		}
 		characterCamera.enabled = false;
-		bool flag = (double)characterCamera.camera.aspect == 0.5625;
-		characterCamera.camera.fieldOfView = ((!flag) ? Running.cameraFOV : fovInMenuIphone5);
+		bool flag = (double)characterCamera.GetComponent<Camera>().aspect == 0.5625;
+		characterCamera.GetComponent<Camera>().fieldOfView = ((!flag) ? Running.cameraFOV : fovInMenuIphone5);
 		characterCameraTransform.localPosition = character.transform.position + Running.cameraOffset + Vector3.up * 0.8f;
 		characterCameraTransform.localRotation = Quaternion.Euler(21.50143f, 0f, 0f);
 		characterAnimation.Play("idlePaint");
@@ -594,7 +594,7 @@ public class Game : MonoBehaviour
 		distort.Reset();
 		enemies.ShowEnemies(false);
 		StageMenuSequence();
-		characterCamera.transform.parent.animation.CrossFade("menuIdle", 0.1f);
+		characterCamera.transform.parent.GetComponent<Animation>().CrossFade("menuIdle", 0.1f);
 		if (OnTopMenu != null)
 		{
 			OnTopMenu();
@@ -627,21 +627,21 @@ public class Game : MonoBehaviour
 		track.Restart();
 		track.LayTrackChunks(0f);
 		distort.Reset();
-		characterCamera.transform.parent.animation.CrossFade("startPan", 0.2f);
+		characterCamera.transform.parent.GetComponent<Animation>().CrossFade("startPan", 0.2f);
 		characterAnimation.CrossFade("introRun", 0.2f);
-		IEnumerator cameraMovement = pTween.To(characterAnimation.animation["introRun"].length, delegate
+		IEnumerator cameraMovement = pTween.To(characterAnimation.GetComponent<Animation>()["introRun"].length, delegate
 		{
 		});
 		float time = Time.time;
-		float fov_start = characterCamera.camera.fieldOfView;
+		float fov_start = characterCamera.GetComponent<Camera>().fieldOfView;
 		while (cameraMovement.MoveNext())
 		{
-			characterCamera.camera.fieldOfView = Mathf.Lerp(fov_start, Running.cameraFOV, (Time.time - time) * 0.75f);
+			characterCamera.GetComponent<Camera>().fieldOfView = Mathf.Lerp(fov_start, Running.cameraFOV, (Time.time - time) * 0.75f);
 			yield return 0;
 		}
-		characterCamera.camera.fieldOfView = Running.cameraFOV;
+		characterCamera.GetComponent<Camera>().fieldOfView = Running.cameraFOV;
 		stats.Reset();
-		character.sprayCanModel.renderer.enabled = false;
+		character.sprayCanModel.GetComponent<Renderer>().enabled = false;
 		enemies.enabled = true;
 		if (track.IsRunningOnTutorialTrack)
 		{

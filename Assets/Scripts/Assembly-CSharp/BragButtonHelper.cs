@@ -20,9 +20,9 @@ public class BragButtonHelper : MonoBehaviour
 
 	public void DisableButton()
 	{
-		if (base.gameObject.collider != null)
+		if (base.gameObject.GetComponent<Collider>() != null)
 		{
-			Object.Destroy(base.gameObject.collider);
+			Object.Destroy(base.gameObject.GetComponent<Collider>());
 		}
 		fill.color = inactiveColor;
 		buttonEnabled = false;

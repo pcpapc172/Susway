@@ -37,7 +37,7 @@ public static class NGUITools
 	{
 		get
 		{
-			return Application.platform != RuntimePlatform.WindowsWebPlayer && Application.platform != RuntimePlatform.OSXWebPlayer;
+			return Application.platform != RuntimePlatform.WebGLPlayer && Application.platform != RuntimePlatform.WebGLPlayer;
 		}
 	}
 
@@ -74,7 +74,7 @@ public static class NGUITools
 			}
 			if (mListener != null)
 			{
-				AudioSource audioSource = mListener.audio;
+				AudioSource audioSource = mListener.GetComponent<AudioSource>();
 				if (audioSource == null)
 				{
 					audioSource = mListener.gameObject.AddComponent<AudioSource>();
@@ -447,7 +447,7 @@ public static class NGUITools
 	{
 		SetActiveSelf(t.gameObject, true);
 		int i = 0;
-		for (int childCount = t.GetChildCount(); i < childCount; i++)
+		for (int childCount = t.childCount; i < childCount; i++)
 		{
 			Transform child = t.GetChild(i);
 			Activate(child);
@@ -457,7 +457,7 @@ public static class NGUITools
 	private static void Deactivate(Transform t)
 	{
 		int i = 0;
-		for (int childCount = t.GetChildCount(); i < childCount; i++)
+		for (int childCount = t.childCount; i < childCount; i++)
 		{
 			Transform child = t.GetChild(i);
 			Deactivate(child);
@@ -483,7 +483,7 @@ public static class NGUITools
 		if (state)
 		{
 			int i = 0;
-			for (int childCount = transform.GetChildCount(); i < childCount; i++)
+			for (int childCount = transform.childCount; i < childCount; i++)
 			{
 				Transform child = transform.GetChild(i);
 				Activate(child);
@@ -492,7 +492,7 @@ public static class NGUITools
 		else
 		{
 			int j = 0;
-			for (int childCount2 = transform.GetChildCount(); j < childCount2; j++)
+			for (int childCount2 = transform.childCount; j < childCount2; j++)
 			{
 				Transform child2 = transform.GetChild(j);
 				Deactivate(child2);
@@ -515,7 +515,7 @@ public static class NGUITools
 		go.layer = layer;
 		Transform transform = go.transform;
 		int i = 0;
-		for (int childCount = transform.GetChildCount(); i < childCount; i++)
+		for (int childCount = transform.childCount; i < childCount; i++)
 		{
 			Transform child = transform.GetChild(i);
 			SetLayer(child.gameObject, layer);

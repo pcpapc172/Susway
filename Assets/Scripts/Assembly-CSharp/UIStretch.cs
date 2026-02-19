@@ -31,7 +31,7 @@ public class UIStretch : MonoBehaviour
 
 	private void Awake()
 	{
-		mAnim = base.animation;
+		mAnim = base.GetComponent<Animation>();
 	}
 
 	private void Start()

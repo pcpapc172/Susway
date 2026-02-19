@@ -1,0 +1,12 @@
+using System;
+using System.Collections;
+using UnityEngine;
+
+public partial class UIGameOverHelper
+{
+    // Added parameterless wrapper so it matches System.Action delegate expected by SocialManager
+    public void ReloadFriends()
+    {
+        ReloadFriends(false);
+    }
+}

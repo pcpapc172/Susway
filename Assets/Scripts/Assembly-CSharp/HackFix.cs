@@ -6,18 +6,18 @@ public class HackFix : MonoBehaviour
 
 	private void Awake()
 	{
-		originalMask = base.camera.cullingMask;
+		originalMask = base.GetComponent<Camera>().cullingMask;
 	}
 
 	private void Update()
 	{
 		if (Input.GetKeyDown(KeyCode.C))
 		{
-			base.camera.cullingMask = 2048;
+			base.GetComponent<Camera>().cullingMask = 2048;
 		}
 		if (Input.GetKeyDown(KeyCode.V))
 		{
-			base.camera.cullingMask = originalMask;
+			base.GetComponent<Camera>().cullingMask = originalMask;
 		}
 	}
 }

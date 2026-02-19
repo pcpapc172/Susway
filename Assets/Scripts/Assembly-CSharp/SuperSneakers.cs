@@ -53,14 +53,14 @@ public class SuperSneakers : CharacterModifier
 		character.ChangeAnimations();
 		Powerup = GameStats.Instance.TriggerPowerup(PowerupType.supersneakers);
 		coinMagnetCollider.OnEnter = CoinHit;
-		coinMagnetCollider.collider.enabled = true;
+		coinMagnetCollider.GetComponent<Collider>().enabled = true;
 		character.jumpHeight = character.jumpHeightSuperSneakers;
 		stop = StopSignal.DONT_STOP;
 		while (Powerup.timeLeft > 0f && stop == StopSignal.DONT_STOP)
 		{
 			yield return 0;
 		}
-		coinMagnetCollider.collider.enabled = false;
+		coinMagnetCollider.GetComponent<Collider>().enabled = false;
 		OnTriggerObject onTriggerObject = coinMagnetCollider;
 		onTriggerObject.OnEnter = (OnTriggerObject.OnEnterDelegate)Delegate.Remove(onTriggerObject.OnEnter, new OnTriggerObject.OnEnterDelegate(CoinHit));
 		character.jumpHeight = character.jumpHeightNormal;
@@ -78,7 +78,7 @@ public class SuperSneakers : CharacterModifier
 		Coin component = collider.GetComponent<Coin>();
 		if (component != null)
 		{
-			component.collider.enabled = false;
+			component.GetComponent<Collider>().enabled = false;
 			StartCoroutine(Pull(component));
 			return;
 		}

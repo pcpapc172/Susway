@@ -22,9 +22,9 @@ public class BragPopupHandler : MonoBehaviour
 	{
 		if (_bragHandler.bragNotifyDone)
 		{
-			if (SendMessageButton.gameObject.collider != null)
+			if (SendMessageButton.gameObject.GetComponent<Collider>() != null)
 			{
-				Object.Destroy(SendMessageButton.gameObject.collider);
+				Object.Destroy(SendMessageButton.gameObject.GetComponent<Collider>());
 			}
 			if (Settings.optionAutoMessage)
 			{
@@ -60,9 +60,9 @@ public class BragPopupHandler : MonoBehaviour
 		{
 			if (_bragHandler.bragFacebookDone)
 			{
-				if (FacebookBragButton.gameObject.collider != null)
+				if (FacebookBragButton.gameObject.GetComponent<Collider>() != null)
 				{
-					Object.Destroy(FacebookBragButton.gameObject.collider);
+					Object.Destroy(FacebookBragButton.gameObject.GetComponent<Collider>());
 				}
 				FacebookBragButton.icon.alpha = 0.5f;
 				SendMessageButton.GetComponent<UIButtonColor>().defaultColor = new Color(1f, 1f, 1f, 0.5f);
@@ -94,9 +94,9 @@ public class BragPopupHandler : MonoBehaviour
 		{
 			SocialManager.instance.BragNotify(PlayerInfo.Instance.oldHighestScore, _bragHandler.bragList);
 		}
-		if (SendMessageButton.gameObject.collider != null)
+		if (SendMessageButton.gameObject.GetComponent<Collider>() != null)
 		{
-			Object.Destroy(SendMessageButton.gameObject.collider);
+			Object.Destroy(SendMessageButton.gameObject.GetComponent<Collider>());
 		}
 		SendMessageButton.GetComponent<UIButtonColor>().defaultColor = new Color(1f, 1f, 1f, 0.5f);
 		SendMessageButton.icon.alpha = 0.5f;
@@ -113,9 +113,9 @@ public class BragPopupHandler : MonoBehaviour
 			{
 				SocialManager.instance.BragFacebook(_bragHandler.bragList);
 			}
-			if (FacebookBragButton.gameObject.collider != null)
+			if (FacebookBragButton.gameObject.GetComponent<Collider>() != null)
 			{
-				Object.Destroy(FacebookBragButton.gameObject.collider);
+				Object.Destroy(FacebookBragButton.gameObject.GetComponent<Collider>());
 			}
 			FacebookBragButton.icon.alpha = 0.5f;
 			SendMessageButton.GetComponent<UIButtonColor>().defaultColor = new Color(1f, 1f, 1f, 0.5f);

@@ -9,13 +9,15 @@ public class UISocialScreen : MonoBehaviour
 
 	private unsafe void OnEnable()
 	{
-		SocialManager.instance.AddFriendsConsolidatedHandler(new Action(this, (IntPtr)__ldftn(UISocialScreen.ReloadFriends)));
+		SocialManager.instance.AddFriendsConsolidatedHandler(new Action(this.ReloadFriends));
 	}
 
 	private unsafe void OnDisable()
 	{
-		SocialManager.instance.RemoveFriendsConsolidatedHandler(new Action(this, (IntPtr)__ldftn(UISocialScreen.ReloadFriends)));
+		SocialManager.instance.RemoveFriendsConsolidatedHandler(new Action(this.ReloadFriends));
 	}
+
+	public void ReloadFriends() { ReloadFriends(false); }
 
 	public void ReloadFriends(bool val = false)
 	{

@@ -325,9 +325,9 @@ public class UpgradeHelper : MonoBehaviour
 		}
 		if (animState == AnimState.Closed)
 		{
-			if (buyButton != null && buyButton.collider != null)
+			if (buyButton != null && buyButton.GetComponent<Collider>() != null)
 			{
-				BoxCollider boxCollider = buyButton.collider as BoxCollider;
+				BoxCollider boxCollider = buyButton.GetComponent<Collider>() as BoxCollider;
 				boxCollider.center = new Vector3(boxCollider.center.x, boxCollider.center.y, 15f);
 			}
 			if (descriptionButtonCollider != null)
@@ -365,7 +365,7 @@ public class UpgradeHelper : MonoBehaviour
 			animState = AnimState.Closing;
 		}
 		contentChanger.FoldClicked();
-		Collider collider = base.gameObject.collider;
+		Collider collider = base.gameObject.GetComponent<Collider>();
 		if (collider != null)
 		{
 			collider.enabled = false;

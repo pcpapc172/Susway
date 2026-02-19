@@ -15,7 +15,7 @@ public class FriendCrewPokeHelper : MonoBehaviour
 
 	public void DeactivatePoke()
 	{
-		Object.Destroy(base.gameObject.collider);
+		Object.Destroy(base.gameObject.GetComponent<Collider>());
 		NGUITools.SetActive(pokeIcon.gameObject, false);
 	}
 

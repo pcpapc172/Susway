@@ -196,7 +196,7 @@ public class MysteryBoxHandler : MonoBehaviour
 
 	private IEnumerator PrizeButtonShow(Transform toShow)
 	{
-		toShow.collider.enabled = true;
+		toShow.GetComponent<Collider>().enabled = true;
 		float lerpTime = Vector3.Distance(toShow.localPosition, _HidePrizeButtonPosition) / Vector3.Distance(_HidePrizeButtonPosition, _ShowPrizeButtonPosition);
 		while (lerpTime < 1f)
 		{
@@ -209,7 +209,7 @@ public class MysteryBoxHandler : MonoBehaviour
 
 	private IEnumerator PrizeButtonHide(Transform toHide)
 	{
-		toHide.collider.enabled = false;
+		toHide.GetComponent<Collider>().enabled = false;
 		float lerpTime = Vector3.Distance(toHide.localPosition, _ShowPrizeButtonPosition) / Vector3.Distance(_HidePrizeButtonPosition, _ShowPrizeButtonPosition);
 		while (lerpTime < 1f)
 		{
@@ -243,8 +243,8 @@ public class MysteryBoxHandler : MonoBehaviour
 		{
 			UnityEngine.Object.Destroy(prizeList);
 		}
-		openButton.collider.enabled = true;
-		continueButton.collider.enabled = true;
+		openButton.GetComponent<Collider>().enabled = true;
+		continueButton.GetComponent<Collider>().enabled = true;
 	}
 
 	private void ShowPrizeList(MysteryBox.Type type)
@@ -279,8 +279,8 @@ public class MysteryBoxHandler : MonoBehaviour
 			_superMysteryBoxEffect.SetVisible(false);
 		}
 		prizeList.transform.localPosition = new Vector3(0f, 0f, -10f);
-		openButton.collider.enabled = false;
-		continueButton.collider.enabled = false;
+		openButton.GetComponent<Collider>().enabled = false;
+		continueButton.GetComponent<Collider>().enabled = false;
 	}
 
 	public void SetupMysteryBoxScreen()
@@ -294,7 +294,7 @@ public class MysteryBoxHandler : MonoBehaviour
 			anotherBox = false;
 			Debug.LogError("You should not be here when do do not have any mysteriboxes");
 			UIScreenController.Instance.ClosePopup();
-			openButton.collider.enabled = false;
+			openButton.GetComponent<Collider>().enabled = false;
 			return;
 		}
 		if (_numberOfBoxes == 1)
@@ -343,7 +343,7 @@ public class MysteryBoxHandler : MonoBehaviour
 		{
 			StartCoroutine(BoxIdleAnimCoroutine(_boxes[_boxCurrent].transform));
 		}
-		openButton.collider.enabled = true;
+		openButton.GetComponent<Collider>().enabled = true;
 	}
 
 	public void SkipNow()
@@ -405,7 +405,7 @@ public class MysteryBoxHandler : MonoBehaviour
 		StartCoroutine(MoveGameObject(_boxes[_boxCurrent].transform, 0.35f, Vector3.zero));
 		StartCoroutine(BoxIdleAnimCoroutine(_boxes[_boxCurrent].transform));
 		yield return new WaitForSeconds(0.35f);
-		openButton.collider.enabled = true;
+		openButton.GetComponent<Collider>().enabled = true;
 		if (boxesToUnlock[_boxCurrent] == MysteryBox.Type.Normal)
 		{
 			ShowPrizeButton(MysteryBox.Type.Normal);
@@ -433,7 +433,7 @@ public class MysteryBoxHandler : MonoBehaviour
 
 	public void TestUp()
 	{
-		openButton.collider.enabled = false;
+		openButton.GetComponent<Collider>().enabled = false;
 		if (!openingBoxNow)
 		{
 			ShowPrizeButton(false);
@@ -577,8 +577,8 @@ public class MysteryBoxHandler : MonoBehaviour
 			UnityEngine.Object.Destroy(obj);
 		}
 		UIScreenController.Instance.ClosePopup();
-		continueButton.collider.enabled = true;
-		openButton.collider.enabled = false;
+		continueButton.GetComponent<Collider>().enabled = true;
+		openButton.GetComponent<Collider>().enabled = false;
 		if (PlayerInfo.Instance.mysteryBoxesToUnlockCount > 0)
 		{
 			UIScreenController.Instance.QueueMysteryBox();

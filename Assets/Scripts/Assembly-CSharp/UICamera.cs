@@ -148,7 +148,7 @@ public class UICamera : MonoBehaviour
 		{
 			if (mCam == null)
 			{
-				mCam = base.camera;
+				mCam = base.GetComponent<Camera>();
 			}
 			return mCam;
 		}
@@ -446,7 +446,7 @@ public class UICamera : MonoBehaviour
 		mList.Sort(CompareFunc);
 		if ((int)eventReceiverMask == -1)
 		{
-			eventReceiverMask = base.camera.cullingMask;
+			eventReceiverMask = base.GetComponent<Camera>().cullingMask;
 		}
 	}
 

@@ -148,7 +148,7 @@ public class LoadLevelCtrl : MonoBehaviour
 		{
 			if (child.name != "Main Camera")
 			{
-				child.parent = Camera.mainCamera.transform;
+				child.parent = Camera.main.transform;
 			}
 		}
 		Object.Destroy(GameObject.Find("cameraRig_startGame"));

@@ -8,16 +8,16 @@ public class RendererActivator : MonoBehaviour
 		TrackObject trackObject = GetComponent<TrackObject>() ?? base.gameObject.AddComponent<TrackObject>();
 		trackObject.OnActivate = (TrackObject.OnActivateDelegate)Delegate.Combine(trackObject.OnActivate, new TrackObject.OnActivateDelegate(OnActivate));
 		trackObject.OnDeactivate = (TrackObject.OnDeactivateDelegate)Delegate.Combine(trackObject.OnDeactivate, new TrackObject.OnDeactivateDelegate(OnDeactivate));
-		base.renderer.enabled = false;
+		base.GetComponent<Renderer>().enabled = false;
 	}
 
 	public void OnActivate()
 	{
-		base.renderer.enabled = true;
+		base.GetComponent<Renderer>().enabled = true;
 	}
 
 	public void OnDeactivate()
 	{
-		base.renderer.enabled = false;
+		base.GetComponent<Renderer>().enabled = false;
 	}
 }

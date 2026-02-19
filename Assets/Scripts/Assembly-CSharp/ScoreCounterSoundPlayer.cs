@@ -21,7 +21,7 @@ public class ScoreCounterSoundPlayer : MonoBehaviour
 		scoreSource.volume = volume;
 		scoreSource.clip = scoreSound;
 		scoreSource.playOnAwake = false;
-		scoreSource.panLevel = 0f;
+		scoreSource.spatialBlend = 0f;
 	}
 
 	public void PlayCoinSound(float countFactor)

@@ -35,8 +35,8 @@ public class UIHeadStartHelper : MonoBehaviour
 
 	private void InitHelper()
 	{
-		headStart1.collider.enabled = false;
-		headStart2.collider.enabled = false;
+		headStart1.GetComponent<Collider>().enabled = false;
+		headStart2.GetComponent<Collider>().enabled = false;
 		headStart1.transform.localPosition = hs1PositionOff;
 		headStart2.transform.localPosition = hs2PositionOff;
 		PlayerInfo instance = PlayerInfo.Instance;
@@ -67,13 +67,13 @@ public class UIHeadStartHelper : MonoBehaviour
 		{
 			headStart1.transform.localPosition = hs1PositionOff;
 			SpringPosition.Begin(headStart1, hs1PositionOn, 10f);
-			headStart1.collider.enabled = true;
+			headStart1.GetComponent<Collider>().enabled = true;
 		}
 		if (PlayerInfo.Instance.GetUpgradeAmount(PowerupType.headstart2000) > 0)
 		{
 			headStart2.transform.localPosition = hs2PositionOff;
 			SpringPosition.Begin(headStart2, hs2PositionOn, 10f);
-			headStart2.collider.enabled = true;
+			headStart2.GetComponent<Collider>().enabled = true;
 		}
 		Invoke("HideHeadStart", 5f);
 	}
@@ -99,8 +99,8 @@ public class UIHeadStartHelper : MonoBehaviour
 			SpringPosition.Begin(headStart1, hs1PositionOff, 10f);
 			SpringPosition.Begin(headStart2, hs2PositionOff, 10f);
 		}
-		headStart1.collider.enabled = false;
-		headStart2.collider.enabled = false;
+		headStart1.GetComponent<Collider>().enabled = false;
+		headStart2.GetComponent<Collider>().enabled = false;
 		CancelInvoke("HideHeadStart");
 	}
 }

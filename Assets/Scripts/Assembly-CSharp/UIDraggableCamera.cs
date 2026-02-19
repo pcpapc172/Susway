@@ -42,7 +42,7 @@ public class UIDraggableCamera : IgnoreTimeScale
 
 	private void Awake()
 	{
-		mCam = base.camera;
+		mCam = base.GetComponent<Camera>();
 		mTrans = base.transform;
 		if (rootForBounds == null)
 		{

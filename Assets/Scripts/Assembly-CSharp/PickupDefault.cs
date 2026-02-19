@@ -28,9 +28,9 @@ public class PickupDefault : MonoBehaviour
 
 	private Collider FindParentCollider(Transform current)
 	{
-		if (current.collider != null)
+		if (current.GetComponent<Collider>() != null)
 		{
-			return current.collider;
+			return current.GetComponent<Collider>();
 		}
 		if (current.parent != null)
 		{

@@ -63,7 +63,7 @@ public class TrackChunk : MonoBehaviour
 
 	private void DeactiveObstaclesRecursive(Transform target, float maxZ)
 	{
-		float num = ((!(target.collider != null)) ? target.transform.position.z : target.collider.bounds.min.z);
+		float num = ((!(target.GetComponent<Collider>() != null)) ? target.transform.position.z : target.GetComponent<Collider>().bounds.min.z);
 		if (target.GetComponent<SnapObject>() == null)
 		{
 			foreach (Transform item in target)
