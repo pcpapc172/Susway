@@ -40,7 +40,7 @@ jobs:
           UNITY_EMAIL: ${{ secrets.UNITY_EMAIL }}
           UNITY_PASSWORD: ${{ secrets.UNITY_PASSWORD }}
         with:
-          unityVersion: auto
+          unityVersion: 2019.4.41f2
           targetPlatform: ${{ matrix.targetPlatform }}
           androidKeystoreName: ${{ secrets.ANDROID_KEYSTORE_NAME }}
           androidKeystoreBase64: ${{ secrets.ANDROID_KEYSTORE_BASE64 }}
@@ -73,10 +73,10 @@ jobs:
             ABUPPLUS-${{ matrix.targetPlatform }}.zip
             ABUPPLUS-Android.apk
           if-no-files-found: ignore
-
+  
   release:
     name: Create prerelease
-    if: always()   # ⭐ KEY LINE
+    if: always()
     needs: build
     runs-on: ubuntu-latest
 
@@ -87,15 +87,20 @@ jobs:
           path: artifacts
         continue-on-error: true
 
-      - name: Show files
-        run: ls -R artifacts || true
+      - name: Merge build status
+        run: |
+          cat artifacts/status-*/build-status.txt > BUILD_STATUS.md || echo "No status found"
+
+      - name: Show status
+        run: cat BUILD_STATUS.md || true
 
       - name: Create prerelease
         uses: softprops/action-gh-release@v2
         with:
-          tag_name: build-${{ github.run_number }}
+          tag_name: build-${{ github.run_number }}-${{ github.run_attempt }}
           name: Build ${{ github.run_number }}
           prerelease: true
+          body_path: BUILD_STATUS.md
           files: artifacts/**/*
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
