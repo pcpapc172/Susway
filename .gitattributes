@@ -1,2 +1,2 @@
-# Auto detect text files and perform LF normalization
+# Ensure that text files that any contributor introduces to the repository have their line endings normalized
 * text=auto
