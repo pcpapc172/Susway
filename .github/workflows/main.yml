@@ -53,7 +53,7 @@ jobs:
         if: matrix.targetPlatform != 'Android'
         run: |
           cd build/${{ matrix.targetPlatform }} 2>/dev/null || exit 0
-          zip -r ../../ABUPPLUS-${{ matrix.targetPlatform }}.zip . || true
+          zip -r ../../Subway-Surfers-Resurferd-${{ matrix.targetPlatform }}.zip . || true
           cd ../../
 
       # Rename APK
@@ -62,7 +62,7 @@ jobs:
         run: |
           APK_PATH=$(find build/Android -name "*.apk" | head -n 1 || true)
           if [ -f "$APK_PATH" ]; then
-            cp "$APK_PATH" ABUPPLUS-Android.apk
+            cp "$APK_PATH" Subway-Surfers-Resurferd-Android.apk
           fi
 
       - name: Upload artifact
@@ -71,7 +71,7 @@ jobs:
           name: release-${{ matrix.targetPlatform }}
           path: |
             ABUPPLUS-${{ matrix.targetPlatform }}.zip
-            ABUPPLUS-Android.apk
+            Subway-Surfers-Resurferd.apk
           if-no-files-found: ignore
   
   release:
