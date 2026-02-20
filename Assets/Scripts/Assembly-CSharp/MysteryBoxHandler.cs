@@ -200,7 +200,8 @@ public class MysteryBoxHandler : MonoBehaviour
 		float lerpTime = Vector3.Distance(toShow.localPosition, _HidePrizeButtonPosition) / Vector3.Distance(_HidePrizeButtonPosition, _ShowPrizeButtonPosition);
 		while (lerpTime < 1f)
 		{
-			lerpTime += Time.deltaTime * 3.1f;
+			// Use unscaled delta time so UI animations continue even if Time.timeScale changes elsewhere
+			lerpTime += Time.unscaledDeltaTime * 3.1f;
 			toShow.localPosition = Vector3.Lerp(_HidePrizeButtonPosition, _ShowPrizeButtonPosition, lerpTime);
 			yield return null;
 		}
@@ -213,7 +214,8 @@ public class MysteryBoxHandler : MonoBehaviour
 		float lerpTime = Vector3.Distance(toHide.localPosition, _ShowPrizeButtonPosition) / Vector3.Distance(_HidePrizeButtonPosition, _ShowPrizeButtonPosition);
 		while (lerpTime < 1f)
 		{
-			lerpTime += Time.deltaTime * 3.1f;
+			// Use unscaled time so hiding animation isn't blocked by timeScale changes
+			lerpTime += Time.unscaledDeltaTime * 3.1f;
 			toHide.localPosition = Vector3.Lerp(_ShowPrizeButtonPosition, _HidePrizeButtonPosition, lerpTime);
 			yield return null;
 		}
@@ -404,7 +406,7 @@ public class MysteryBoxHandler : MonoBehaviour
 		_boxes[_boxCurrent].transform.parent = slots[0].transform;
 		StartCoroutine(MoveGameObject(_boxes[_boxCurrent].transform, 0.35f, Vector3.zero));
 		StartCoroutine(BoxIdleAnimCoroutine(_boxes[_boxCurrent].transform));
-		yield return new WaitForSeconds(0.35f);
+        yield return new WaitForSecondsRealtime(0.35f);
 		openButton.GetComponent<Collider>().enabled = true;
 		if (boxesToUnlock[_boxCurrent] == MysteryBox.Type.Normal)
 		{
@@ -490,10 +492,10 @@ public class MysteryBoxHandler : MonoBehaviour
 		}
 		StartCoroutine(MoveGameObject(_boxes[_boxCurrent].transform, 0.7f, _outOfScreenPosition));
 		StartCoroutine(RotateGameObject(rewardGo.transform, 4f, new Vector3(0f, 1500f, 0f)));
-		yield return new WaitForSeconds(0.5f);
+        yield return new WaitForSecondsRealtime(0.5f);
 		StartCoroutine(AnimateColor(GlowEffect.GetComponent<MeshRenderer>().material, 1.5f, Color.white));
 		StartCoroutine(RotateGameObject(GlowEffect.transform, 3f, new Vector3(0f, 0f, -270f)));
-		yield return new WaitForSeconds(1.3f);
+        yield return new WaitForSecondsRealtime(1.3f);
 		GameObject labelGo = NGUITools.AddChild(base.gameObject, rewardLabelTemplate);
 		labelGo.transform.localPosition = _labelPosition;
 		MysteryBoxRewardLabelTemplate template = labelGo.GetComponent<MysteryBoxRewardLabelTemplate>();
@@ -523,15 +525,15 @@ public class MysteryBoxHandler : MonoBehaviour
 		}
 		newTrophyLabel.gameObject.active = showNewTrophyLabel;
 		StartCoroutine(AnimateAlpha(template, 0.2f, 1f));
-		yield return new WaitForSeconds(0.5f);
+        yield return new WaitForSecondsRealtime(0.5f);
 		if (reward.type == MysteryBoxRewardType.coins)
 		{
 			StartCoroutine(CountUpCoins(reward.amount, template));
-			yield return new WaitForSeconds(2.5f);
+        yield return new WaitForSecondsRealtime(2.5f);
 		}
 		else
 		{
-			yield return new WaitForSeconds(1f);
+        yield return new WaitForSecondsRealtime(1f);
 		}
 		StartCoroutine(AnimateColor(GlowEffect.GetComponent<MeshRenderer>().material, 0.5f, Color.black));
 		if (reward.type == MysteryBoxRewardType.powerup)
@@ -548,7 +550,7 @@ public class MysteryBoxHandler : MonoBehaviour
 		}
 		PlayerInfo.Instance.SaveIfDirty();
 		Flurry.LogEvent("Mystery Box opened");
-		yield return new WaitForSeconds(1f);
+        yield return new WaitForSecondsRealtime(1f);
 		ContinueLabel.text = "Tap to continue";
 		StartCoroutine(AnimateAlpha(ContinueLabel, 0.5f, 1f));
 		while (!Input.GetMouseButtonUp(0))

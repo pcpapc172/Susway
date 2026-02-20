@@ -1,10 +1,11 @@
-﻿Shader "Unlit/ColorKey_Transparent"
+﻿Shader "Unlit/ColorKey_AlphaBleed"
 {
     Properties
     {
         _MainTex ("Texture", 2D) = "white" {}
         _KeyColor ("Key Color", Color) = (1,1,0,1) // Yellow
-        _Threshold ("Key Threshold", Float) = 0.1
+        _Threshold ("Key Threshold", Float) = 0.15
+        _Bleed ("Bleed Sharpness", Float) = 5.0
     }
     SubShader
     {
@@ -23,6 +24,7 @@
             sampler2D _MainTex;
             float4 _KeyColor;
             float _Threshold;
+            float _Bleed;
 
             struct appdata_t
             {
@@ -48,10 +50,17 @@
             {
                 fixed4 col = tex2D(_MainTex, i.uv);
 
-                // If color is close to key color, discard (make transparent)
                 float dist = distance(col.rgb, _KeyColor.rgb);
-                if (dist < _Threshold)
-                    col.a = 0;
+
+                // Soft fade: full alpha if far from key, zero alpha if at key, blend in-between
+                float alpha = smoothstep(_Threshold, _Threshold / _Bleed, dist);
+
+                // Optional: boost brightness near the edge (fake dilation)
+                col.rgb = lerp(col.rgb, float3(1,1,1), 1 - alpha);
+
+                col.a *= alpha;
+                if (col.a < 0.01) discard;
+
                 return col;
             }
             ENDCG
