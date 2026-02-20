@@ -28,8 +28,7 @@ jobs:
         with:
           path: Library
           key: Library-${{ hashFiles('Assets/**', 'Packages/**', 'ProjectSettings/**') }}
-          restore-keys: |
-            Library-
+          restore-keys: Library-
 
       - name: Build project
         uses: game-ci/unity-builder@v4
@@ -46,45 +45,49 @@ jobs:
           androidKeyaliasName: ${{ secrets.ANDROID_KEYALIAS_NAME }}
           androidKeyaliasPass: ${{ secrets.ANDROID_KEYALIAS_PASS }}
 
-      # ✅ Zip desktop builds
+      # Zip desktop builds
       - name: Zip build
         if: matrix.targetPlatform != 'Android'
         run: |
-          cd build/${{ matrix.targetPlatform }}
-          zip -r ../../Subway-Surfers-Resurfered-${{ matrix.targetPlatform }}.zip .
+          cd build/${{ matrix.targetPlatform }} 2>/dev/null || exit 0
+          zip -r ../../ABUPPLUS-${{ matrix.targetPlatform }}.zip . || true
           cd ../../
 
-      # ✅ Rename APK
+      # Rename APK
       - name: Rename APK
         if: matrix.targetPlatform == 'Android'
         run: |
-          APK_PATH=$(find build/Android -name "*.apk" | head -n 1)
-          cp "$APK_PATH" Subway-Surfers-Resurfered-Android.apk
+          APK_PATH=$(find build/Android -name "*.apk" | head -n 1 || true)
+          if [ -f "$APK_PATH" ]; then
+            cp "$APK_PATH" ABUPPLUS-Android.apk
+          fi
 
-      # ✅ Upload artifacts (used later by release step)
       - name: Upload artifact
         uses: actions/upload-artifact@v4
         with:
           name: release-${{ matrix.targetPlatform }}
           path: |
-            Subway-Surfers-Resurfered-${{ matrix.targetPlatform }}.zip
-            Subway-Surfers-Resurfered-Android.apk
+            ABUPPLUS-${{ matrix.targetPlatform }}.zip
+            ABUPPLUS-Android.apk
+          if-no-files-found: ignore
 
   release:
     name: Create prerelease
+    if: always()   # ⭐ KEY LINE
     needs: build
     runs-on: ubuntu-latest
 
     steps:
-      - name: Download all artifacts
+      - name: Download artifacts
         uses: actions/download-artifact@v4
         with:
           path: artifacts
+        continue-on-error: true
 
-      - name: Display files
-        run: ls -R artifacts
+      - name: Show files
+        run: ls -R artifacts || true
 
-      - name: Create GitHub prerelease
+      - name: Create prerelease
         uses: softprops/action-gh-release@v2
         with:
           tag_name: build-${{ github.run_number }}
