@@ -90,29 +90,34 @@ jobs:
           name: status-${{ matrix.targetPlatform }}
           path: status.txt
 
-  release:
-    name: Create prerelease
-    if: always()
-    needs: build
-    runs-on: ubuntu-latest
+release:
+  name: Create prerelease
+  if: always()
+  needs: build
+  runs-on: ubuntu-latest
 
-    steps:
-      - uses: actions/download-artifact@v4
-        with:
-          path: artifacts
-        continue-on-error: true
+  steps:
+    - uses: actions/download-artifact@v4
+      with:
+        path: artifacts
+      continue-on-error: true
 
-      - name: Merge status
-        run: |
-          cat artifacts/status-*/status.txt > BUILD_STATUS.md || echo "No status"
+    # Merge emoji status
+    - name: Merge status
+      run: |
+        cat artifacts/status-*/status.txt > BUILD_STATUS.md || echo "No status"
 
-      - name: Create prerelease
-        uses: softprops/action-gh-release@v2
-        with:
-          tag_name: build-${{ github.run_number }}-${{ github.run_attempt }}
-          name: Build ${{ github.run_number }}
-          prerelease: true
-          body_path: BUILD_STATUS.md
-          files: artifacts/**/*
-        env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+    # Remove status artifacts so they are not uploaded
+    - name: Remove status artifacts
+      run: rm -rf artifacts/status-* || true
+
+    - name: Create prerelease
+      uses: softprops/action-gh-release@v2
+      with:
+        tag_name: build-${{ github.run_number }}-${{ github.run_attempt }}
+        name: Build ${{ github.run_number }}
+        prerelease: true
+        body_path: BUILD_STATUS.md
+        files: artifacts/**/*
+      env:
+        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
