@@ -257,10 +257,71 @@ public class FollowingGuard : MonoBehaviour
 			enemies[i].position = enemiesStartPos[i];
 			enemies[i].rotation = Quaternion.Euler(0f, 0f, 0f);
 		}
-		guardAnimation.Play("playIntro");
-		dogRightAnimation.Play("playIntro");
-		guardAnimation.CrossFadeQueued("Guard_Run", 0.2f);
-		dogRightAnimation.CrossFadeQueued("Dog_Fast Run", 0.2f);
+
+		// The animation assets exist in the project but may not be assigned to the
+		// Animation component on the guard/dog GameObjects. Play the first
+		// available candidate name and fall back gracefully if a clip isn't found.
+		string[] introCandidates = new string[2] { "playIntro_0", "playIntro" };
+
+		bool guardPlayed = false;
+		if (guardAnimation != null)
+		{
+			foreach (string name in introCandidates)
+			{
+				if (guardAnimation.GetClip(name) != null)
+				{
+					guardAnimation.Play(name);
+					guardPlayed = true;
+					break;
+				}
+			}
+			if (!guardPlayed)
+			{
+				Debug.LogWarning("FollowingGuard: neither 'playIntro_0' nor 'playIntro' were found on guardAnimation. Available clips: " + GetClipList(guardAnimation));
+			}
+		}
+
+		bool dogPlayed = false;
+		if (dogRightAnimation != null)
+		{
+			foreach (string name in introCandidates)
+			{
+				if (dogRightAnimation.GetClip(name) != null)
+				{
+					dogRightAnimation.Play(name);
+					dogPlayed = true;
+					break;
+				}
+			}
+			if (!dogPlayed)
+			{
+				Debug.LogWarning("FollowingGuard: neither 'playIntro_0' nor 'playIntro' were found on dogRightAnimation. Available clips: " + GetClipList(dogRightAnimation));
+			}
+		}
+
+		if (guardAnimation != null && guardAnimation.GetClip("Guard_Run") != null)
+		{
+			guardAnimation.CrossFadeQueued("Guard_Run", 0.2f);
+		}
+		if (dogRightAnimation != null && dogRightAnimation.GetClip("Dog_Fast Run") != null)
+		{
+			dogRightAnimation.CrossFadeQueued("Dog_Fast Run", 0.2f);
+		}
+	}
+
+	// Helper to list clips on an Animation component for easier debug messages.
+	private string GetClipList(Animation anim)
+	{
+		if (anim == null)
+		{
+			return "<null>";
+		}
+		System.Text.StringBuilder sb = new System.Text.StringBuilder();
+		foreach (AnimationState s in anim)
+		{
+			sb.Append(s.name).Append(",");
+		}
+		return sb.ToString().TrimEnd(',');
 	}
 
 	public void CatchPlayer(float pos)

@@ -9,6 +9,10 @@ public class CharacterPickupParticles : MonoBehaviour
 
 	public GameObject PowerUpEFX;
 
+	// Optional: assign the AnimationClip asset for the "pickup" animation in the Inspector.
+	// If left null the script will attempt to play "pickup" only if already present on the Animation.
+	public AnimationClip pickupClip;
+
 	public Transform master;
 
 	public AudioClipInfo CoinPickup;
@@ -31,6 +35,9 @@ public class CharacterPickupParticles : MonoBehaviour
 
 	public void Awake()
 	{
+		// Ensure the "pickup" clip is available at runtime on the EFX Animation components.
+		AddPickupClipIfMissing(CoinEFX);
+		AddPickupClipIfMissing(PowerUpEFX);
 	}
 
 	public void Start()
@@ -71,9 +78,17 @@ public class CharacterPickupParticles : MonoBehaviour
 	{
 		float zAngle = Random.Range(0f, 360f);
 		CoinEFX.transform.Rotate(0f, 0f, zAngle);
-		CoinEFX.GetComponent<Animation>().Stop("pickup");
-		CoinEFX.GetComponent<Animation>().Play("pickup");
-		StartCoroutine(AnimateAlpha(CoinEFX, CoinEFX.GetComponent<Animation>()["pickup"].length));
+		Animation anim = CoinEFX.GetComponent<Animation>();
+		if (anim != null && anim.GetClip("pickup") != null)
+		{
+			anim.Stop("pickup");
+			anim.Play("pickup");
+			StartCoroutine(AnimateAlpha(CoinEFX, anim["pickup"].length));
+		}
+		else
+		{
+			Debug.LogWarning("CharacterPickupParticles: 'pickup' clip not found on CoinEFX Animation. Available clips: " + GetClipList(anim));
+		}
 	}
 
 	public void PickedUpPowerUp()
@@ -87,9 +102,49 @@ public class CharacterPickupParticles : MonoBehaviour
 		DoCoinEFX();
 		float zAngle = Random.Range(0f, 360f);
 		PowerUpEFX.transform.Rotate(0f, 0f, zAngle);
-		PowerUpEFX.GetComponent<Animation>().Stop("pickup");
-		PowerUpEFX.GetComponent<Animation>().Play("pickup");
-		StartCoroutine(AnimateAlpha(PowerUpEFX, PowerUpEFX.GetComponent<Animation>()["pickup"].length));
+		Animation anim = PowerUpEFX.GetComponent<Animation>();
+		if (anim != null && anim.GetClip("pickup") != null)
+		{
+			anim.Stop("pickup");
+			anim.Play("pickup");
+			StartCoroutine(AnimateAlpha(PowerUpEFX, anim["pickup"].length));
+		}
+		else
+		{
+			Debug.LogWarning("CharacterPickupParticles: 'pickup' clip not found on PowerUpEFX Animation. Available clips: " + GetClipList(anim));
+		}
+	}
+
+	private void AddPickupClipIfMissing(GameObject efx)
+	{
+		if (efx == null)
+			return;
+		Animation anim = efx.GetComponent<Animation>();
+		if (anim == null)
+			return;
+		if (anim.GetClip("pickup") == null)
+		{
+			if (pickupClip != null)
+			{
+				anim.AddClip(pickupClip, "pickup");
+			}
+			else
+			{
+				Debug.LogWarning("CharacterPickupParticles: 'pickup' clip missing and pickupClip not assigned. Available clips: " + GetClipList(anim));
+			}
+		}
+	}
+
+	private string GetClipList(Animation anim)
+	{
+		if (anim == null)
+			return "<null>";
+		System.Text.StringBuilder sb = new System.Text.StringBuilder();
+		foreach (AnimationState s in anim)
+		{
+			sb.Append(s.name).Append(",");
+		}
+		return sb.ToString().TrimEnd(',');
 	}
 
 	private IEnumerator AnimateAlpha(GameObject efx, float time)

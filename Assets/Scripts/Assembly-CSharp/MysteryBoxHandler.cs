@@ -63,6 +63,14 @@ public class MysteryBoxHandler : MonoBehaviour
 	[SerializeField]
 	private GameObject superMysteryBoxEffectPrefab;
 
+	// Optional: assign these in the Inspector if the "up"/"down" animations aren't present
+	// on the mystery box prefab's Animation component. If assigned, they'll be added at runtime.
+	[SerializeField]
+	private AnimationClip upClip;
+
+	[SerializeField]
+	private AnimationClip downClip;
+
 	public GameObject testRewardPrefab;
 
 	public GameObject rewardCoins;
@@ -430,7 +438,33 @@ public class MysteryBoxHandler : MonoBehaviour
 	{
 		stopBoxIdleAnim = true;
 		Animation componentInChildren = _boxes[_boxCurrent].GetComponentInChildren<Animation>();
-		componentInChildren.Play("down");
+		if (componentInChildren != null)
+		{
+			if (componentInChildren.GetClip("down") == null)
+			{
+				// try to add a project animation asset named "down" if available
+				AnimationClip downClip = Resources.Load<AnimationClip>("AnimationClip/down") ?? Resources.Load<AnimationClip>("AnimationClip/down.anim");
+				if (downClip != null)
+				{
+					componentInChildren.AddClip(downClip, "down");
+				}
+				else
+				{
+					string clipListDown = "<null>";
+					if (componentInChildren != null)
+					{
+						System.Text.StringBuilder sbDown = new System.Text.StringBuilder();
+						foreach (AnimationState s in componentInChildren)
+						{
+							sbDown.Append(s.name).Append(",");
+						}
+						clipListDown = sbDown.ToString().TrimEnd(',');
+					}
+					Debug.LogWarning("MysteryBoxHandler: 'down' clip not found on box Animation and no asset 'AnimationClip/down' found to add. Available clips: " + clipListDown);
+				}
+			}
+			componentInChildren.Play("down");
+		}
 	}
 
 	public void TestUp()
@@ -476,10 +510,35 @@ public class MysteryBoxHandler : MonoBehaviour
 			audioStateLoop.PlayMysteryBoxOpenSound();
 		}
 		Animation animation = box.GetComponentInChildren<Animation>();
-		animation.Play("up");
-		while (animation["up"].normalizedTime < 0.5f)
+		if (animation != null)
+		{
+			if (animation.GetClip("up") == null)
+			{
+				AnimationClip upClip = Resources.Load<AnimationClip>("AnimationClip/up") ?? Resources.Load<AnimationClip>("AnimationClip/up.anim");
+				if (upClip != null)
+				{
+					animation.AddClip(upClip, "up");
+				}
+					else
+					{
+						string clipListUp = "<null>";
+						if (animation != null)
+						{
+						System.Text.StringBuilder sbUp = new System.Text.StringBuilder();
+						foreach (AnimationState s in animation)
+						{
+							sbUp.Append(s.name).Append(",");
+						}
+							clipListUp = sbUp.ToString().TrimEnd(',');
+						}
+						Debug.LogWarning("MysteryBoxHandler: 'up' clip not found on box Animation and no asset 'AnimationClip/up' found to add. Available clips: " + clipListUp);
+					}
+			}
+			animation.Play("up");
+			while (animation["up"].normalizedTime < 0.5f)
 		{
 			yield return null;
+		}
 		}
 		_maySetTimeScale = true;
 		if (reward.type == MysteryBoxRewardType.coins)
@@ -495,7 +554,7 @@ public class MysteryBoxHandler : MonoBehaviour
         yield return new WaitForSecondsRealtime(0.5f);
 		StartCoroutine(AnimateColor(GlowEffect.GetComponent<MeshRenderer>().material, 1.5f, Color.white));
 		StartCoroutine(RotateGameObject(GlowEffect.transform, 3f, new Vector3(0f, 0f, -270f)));
-        yield return new WaitForSecondsRealtime(1.3f);
+			yield return new WaitForSecondsRealtime(1.3f);
 		GameObject labelGo = NGUITools.AddChild(base.gameObject, rewardLabelTemplate);
 		labelGo.transform.localPosition = _labelPosition;
 		MysteryBoxRewardLabelTemplate template = labelGo.GetComponent<MysteryBoxRewardLabelTemplate>();
@@ -526,6 +585,8 @@ public class MysteryBoxHandler : MonoBehaviour
 		newTrophyLabel.gameObject.active = showNewTrophyLabel;
 		StartCoroutine(AnimateAlpha(template, 0.2f, 1f));
         yield return new WaitForSecondsRealtime(0.5f);
+
+        
 		if (reward.type == MysteryBoxRewardType.coins)
 		{
 			StartCoroutine(CountUpCoins(reward.amount, template));
@@ -791,5 +852,18 @@ public class MysteryBoxHandler : MonoBehaviour
 			break;
 		}
 		return result;
+	}
+
+	// Helper to list clips on an Animation component for easier debug messages.
+	private string GetClipList(Animation anim)
+	{
+		if (anim == null)
+			return "<null>";
+		System.Text.StringBuilder sb = new System.Text.StringBuilder();
+		foreach (AnimationState s in anim)
+		{
+			sb.Append(s.name).Append(",");
+		}
+		return sb.ToString().TrimEnd(',');
 	}
 }
