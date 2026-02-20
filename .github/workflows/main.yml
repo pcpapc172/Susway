@@ -5,9 +5,6 @@ on:
     branches: [ main ]
   workflow_dispatch:
 
-permissions:
-  contents: write
-
 jobs:
   build:
     name: Build ${{ matrix.targetPlatform }}
@@ -23,18 +20,18 @@ jobs:
           - Android
 
     steps:
-      - uses: actions/checkout@v4
+      - name: Checkout repository
+        uses: actions/checkout@v4
 
-      - uses: actions/cache@v3
+      - name: Cache Library
+        uses: actions/cache@v3
         with:
           path: Library
-          key: Library-${{ hashFiles('Assets/**','Packages/**','ProjectSettings/**') }}
+          key: Library-${{ hashFiles('Assets/**', 'Packages/**', 'ProjectSettings/**') }}
           restore-keys: Library-
 
-      - name: Build
-        id: buildStep
+      - name: Build project
         uses: game-ci/unity-builder@v4
-        continue-on-error: true
         env:
           UNITY_LICENSE: ${{ secrets.UNITY_LICENSE }}
           UNITY_EMAIL: ${{ secrets.UNITY_EMAIL }}
@@ -42,7 +39,6 @@ jobs:
         with:
           unityVersion: 2019.4.41f2
           targetPlatform: ${{ matrix.targetPlatform }}
-          androidExportType: 'androidPackage'
           androidKeystoreName: ${{ secrets.ANDROID_KEYSTORE_NAME }}
           androidKeystoreBase64: ${{ secrets.ANDROID_KEYSTORE_BASE64 }}
           androidKeystorePass: ${{ secrets.ANDROID_KEYSTORE_PASS }}
@@ -56,6 +52,7 @@ jobs:
           zip -r ../../Subway-Surfers-Resurferd-${{ matrix.targetPlatform }}.zip . || true
           cd ../../
 
+        # Rename APK
       - name: Rename APK
         if: matrix.targetPlatform == 'Android'
         run: |
@@ -72,47 +69,28 @@ jobs:
             Subway-Surfers-Resurferd-Android.apk
           if-no-files-found: ignore
 
-      - name: Save status
-        if: always()
-        run: |
-          if [ "${{ steps.buildStep.outcome }}" = "success" ]; then
-            echo "✅ ${{ matrix.targetPlatform }}" > status.txt
-          else
-            echo "❌ ${{ matrix.targetPlatform }}" > status.txt
-          fi
-
-      - uses: actions/upload-artifact@v4
-        if: always()
-        with:
-          name: status-${{ matrix.targetPlatform }}
-          path: status.txt
-
   release:
     name: Create prerelease
-    if: always()
+    if: always()   # ⭐ KEY LINE
     needs: build
     runs-on: ubuntu-latest
 
     steps:
-      - uses: actions/download-artifact@v4
+      - name: Download artifacts
+        uses: actions/download-artifact@v4
         with:
           path: artifacts
         continue-on-error: true
 
-      - name: Merge status
-        run: |
-          cat artifacts/status-*/status.txt > BUILD_STATUS.md || echo "No status"
-
-      - name: Remove status artifacts
-        run: rm -rf artifacts/status-* || true
+      - name: Show files
+        run: ls -R artifacts || true
 
       - name: Create prerelease
         uses: softprops/action-gh-release@v2
         with:
-          tag_name: build-${{ github.run_number }}-${{ github.run_attempt }}
+          tag_name: build-${{ github.run_number }}
           name: Build ${{ github.run_number }}
           prerelease: true
-          body_path: BUILD_STATUS.md
           files: artifacts/**/*
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
