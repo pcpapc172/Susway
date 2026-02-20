@@ -48,7 +48,6 @@ jobs:
           androidKeyaliasName: ${{ secrets.ANDROID_KEYALIAS_NAME }}
           androidKeyaliasPass: ${{ secrets.ANDROID_KEYALIAS_PASS }}
 
-      # Zip desktop builds
       - name: Zip build
         if: matrix.targetPlatform != 'Android'
         run: |
@@ -56,7 +55,6 @@ jobs:
           zip -r ../../Subway-Surfers-Resurferd-${{ matrix.targetPlatform }}.zip . || true
           cd ../../
 
-      # Rename APK
       - name: Rename APK
         if: matrix.targetPlatform == 'Android'
         run: |
@@ -65,7 +63,6 @@ jobs:
             cp "$APK_PATH" Subway-Surfers-Resurferd-Android.apk
           fi
 
-      # Upload build artifacts
       - uses: actions/upload-artifact@v4
         with:
           name: release-${{ matrix.targetPlatform }}
@@ -74,7 +71,6 @@ jobs:
             Subway-Surfers-Resurferd-Android.apk
           if-no-files-found: ignore
 
-      # ✅ Save emoji build status
       - name: Save status
         if: always()
         run: |
@@ -90,34 +86,32 @@ jobs:
           name: status-${{ matrix.targetPlatform }}
           path: status.txt
 
-release:
-  name: Create prerelease
-  if: always()
-  needs: build
-  runs-on: ubuntu-latest
+  release:
+    name: Create prerelease
+    if: always()
+    needs: build
+    runs-on: ubuntu-latest
 
-  steps:
-    - uses: actions/download-artifact@v4
-      with:
-        path: artifacts
-      continue-on-error: true
+    steps:
+      - uses: actions/download-artifact@v4
+        with:
+          path: artifacts
+        continue-on-error: true
 
-    # Merge emoji status
-    - name: Merge status
-      run: |
-        cat artifacts/status-*/status.txt > BUILD_STATUS.md || echo "No status"
+      - name: Merge status
+        run: |
+          cat artifacts/status-*/status.txt > BUILD_STATUS.md || echo "No status"
 
-    # Remove status artifacts so they are not uploaded
-    - name: Remove status artifacts
-      run: rm -rf artifacts/status-* || true
+      - name: Remove status artifacts
+        run: rm -rf artifacts/status-* || true
 
-    - name: Create prerelease
-      uses: softprops/action-gh-release@v2
-      with:
-        tag_name: build-${{ github.run_number }}-${{ github.run_attempt }}
-        name: Build ${{ github.run_number }}
-        prerelease: true
-        body_path: BUILD_STATUS.md
-        files: artifacts/**/*
-      env:
-        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+      - name: Create prerelease
+        uses: softprops/action-gh-release@v2
+        with:
+          tag_name: build-${{ github.run_number }}-${{ github.run_attempt }}
+          name: Build ${{ github.run_number }}
+          prerelease: true
+          body_path: BUILD_STATUS.md
+          files: artifacts/**/*
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
