@@ -2,8 +2,7 @@ name: Build Multi-Platform
 
 on:
   push:
-    branches:
-      - main
+    branches: [ main ]
   workflow_dispatch:
 
 jobs:
@@ -24,6 +23,14 @@ jobs:
       - name: Checkout repository
         uses: actions/checkout@v4
 
+      - name: Cache Library
+        uses: actions/cache@v3
+        with:
+          path: Library
+          key: Library-${{ hashFiles('Assets/**', 'Packages/**', 'ProjectSettings/**') }}
+          restore-keys: |
+            Library-
+
       - name: Build project
         uses: game-ci/unity-builder@v4
         env:
@@ -31,7 +38,7 @@ jobs:
           UNITY_EMAIL: ${{ secrets.UNITY_EMAIL }}
           UNITY_PASSWORD: ${{ secrets.UNITY_PASSWORD }}
         with:
-          unityVersion: 2019.4.41f2   # change if needed
+          unityVersion: 2019.4.41f2
           targetPlatform: ${{ matrix.targetPlatform }}
           androidKeystoreName: ${{ secrets.ANDROID_KEYSTORE_NAME }}
           androidKeystoreBase64: ${{ secrets.ANDROID_KEYSTORE_BASE64 }}
@@ -39,8 +46,50 @@ jobs:
           androidKeyaliasName: ${{ secrets.ANDROID_KEYALIAS_NAME }}
           androidKeyaliasPass: ${{ secrets.ANDROID_KEYALIAS_PASS }}
 
-      - name: Upload build artifact
+      # ✅ Zip desktop builds
+      - name: Zip build
+        if: matrix.targetPlatform != 'Android'
+        run: |
+          cd build/${{ matrix.targetPlatform }}
+          zip -r ../../Subway-Surfers-Resurfered-${{ matrix.targetPlatform }}.zip .
+          cd ../../
+
+      # ✅ Rename APK
+      - name: Rename APK
+        if: matrix.targetPlatform == 'Android'
+        run: |
+          APK_PATH=$(find build/Android -name "*.apk" | head -n 1)
+          cp "$APK_PATH" Subway-Surfers-Resurfered-Android.apk
+
+      # ✅ Upload artifacts (used later by release step)
+      - name: Upload artifact
         uses: actions/upload-artifact@v4
         with:
-          name: Build-${{ matrix.targetPlatform }}
-          path: build/${{ matrix.targetPlatform }}
+          name: release-${{ matrix.targetPlatform }}
+          path: |
+            Subway-Surfers-Resurfered-${{ matrix.targetPlatform }}.zip
+            Subway-Surfers-Resurfered-Android.apk
+
+  release:
+    name: Create prerelease
+    needs: build
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Download all artifacts
+        uses: actions/download-artifact@v4
+        with:
+          path: artifacts
+
+      - name: Display files
+        run: ls -R artifacts
+
+      - name: Create GitHub prerelease
+        uses: softprops/action-gh-release@v2
+        with:
+          tag_name: build-${{ github.run_number }}
+          name: Build ${{ github.run_number }}
+          prerelease: true
+          files: artifacts/**/*
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
