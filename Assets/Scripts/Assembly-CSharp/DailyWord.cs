@@ -125,7 +125,7 @@ public class DailyWord : MonoBehaviour
 		key = GenerateKey();
 		WWWForm postData = new WWWForm();
 		postData.AddField("key", key);
-		WWW www = new WWW("http://hoodrunner.kiloo.com/hr_dailyquests.php", postData);
+		WWW www = new WWW("http://127.0.0.1:18085/hr_dailyquests.php", postData);
 		yield return www;
 		if (www.error != null)
 		{
