@@ -665,44 +665,76 @@ public class Game : MonoBehaviour
 		return result;
 	}
 
-	public void HandleControls()
-	{
-		if (_paused || Input.touchCount <= 0)
-		{
-			return;
-		}
-		Touch touch = Input.touches[0];
-		if (touch.phase == TouchPhase.Began)
-		{
-			currentSwipe = new Swipe();
-			currentSwipe.start = touch.position;
-			currentSwipe.startTime = Time.time;
-		}
-		if ((touch.phase == TouchPhase.Moved || touch.phase == TouchPhase.Ended || touch.phase == TouchPhase.Canceled) && currentSwipe != null)
-		{
-			currentSwipe.endTime = Time.time;
-			currentSwipe.end = touch.position;
-			SwipeDir swipeDir = AnalyzeSwipe(currentSwipe);
-			if (swipeDir != SwipeDir.None)
-			{
-				if (characterState != null)
-				{
-					characterState.HandleSwipe(swipeDir);
-				}
-				currentSwipe = null;
-			}
-		}
-		if (touch.phase == TouchPhase.Ended && currentSwipe != null)
-		{
-			currentSwipe.endTime = Time.time;
-			currentSwipe.end = touch.position;
-			SwipeDir swipeDir2 = AnalyzeSwipe(currentSwipe);
-			if (swipeDir2 == SwipeDir.None && characterState != null)
-			{
-				HandleTap();
-			}
-		}
-	}
+    public void HandleControls()
+    {
+        if (_paused)
+        {
+            return;
+        }
+
+        // PC keyboard controls (WASD + arrows) and mouse/tap as a fallback
+        if (characterState != null)
+        {
+            if (Input.GetKeyDown(KeyCode.W) || Input.GetKeyDown(KeyCode.UpArrow))
+            {
+                characterState.HandleSwipe(SwipeDir.Up);
+            }
+            if (Input.GetKeyDown(KeyCode.S) || Input.GetKeyDown(KeyCode.DownArrow))
+            {
+                characterState.HandleSwipe(SwipeDir.Down);
+            }
+            if (Input.GetKeyDown(KeyCode.A) || Input.GetKeyDown(KeyCode.LeftArrow))
+            {
+                characterState.HandleSwipe(SwipeDir.Left);
+            }
+            if (Input.GetKeyDown(KeyCode.D) || Input.GetKeyDown(KeyCode.RightArrow))
+            {
+                characterState.HandleSwipe(SwipeDir.Right);
+            }
+
+            // Space or left mouse button as tap (will still respect double-tap timing)
+            if (Input.GetKeyDown(KeyCode.Space) || Input.GetMouseButtonDown(0))
+            {
+                HandleTap();
+            }
+        }
+
+        // Touch controls (mobile)
+        if (Input.touchCount > 0)
+        {
+            Touch touch = Input.touches[0];
+            if (touch.phase == TouchPhase.Began)
+            {
+                currentSwipe = new Swipe();
+                currentSwipe.start = touch.position;
+                currentSwipe.startTime = Time.time;
+            }
+            if ((touch.phase == TouchPhase.Moved || touch.phase == TouchPhase.Ended || touch.phase == TouchPhase.Canceled) && currentSwipe != null)
+            {
+                currentSwipe.endTime = Time.time;
+                currentSwipe.end = touch.position;
+                SwipeDir swipeDir = AnalyzeSwipe(currentSwipe);
+                if (swipeDir != SwipeDir.None)
+                {
+                    if (characterState != null)
+                    {
+                        characterState.HandleSwipe(swipeDir);
+                    }
+                    currentSwipe = null;
+                }
+            }
+            if (touch.phase == TouchPhase.Ended && currentSwipe != null)
+            {
+                currentSwipe.endTime = Time.time;
+                currentSwipe.end = touch.position;
+                SwipeDir swipeDir2 = AnalyzeSwipe(currentSwipe);
+                if (swipeDir2 == SwipeDir.None && characterState != null)
+                {
+                    HandleTap();
+                }
+            }
+        }
+    }
 
 	private SwipeDir AnalyzeSwipe(Swipe swipe)
 	{
