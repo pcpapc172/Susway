@@ -23,18 +23,18 @@ jobs:
           - Android
 
     steps:
-      - name: Checkout repository
-        uses: actions/checkout@v4
+      - uses: actions/checkout@v4
 
-      - name: Cache Library
-        uses: actions/cache@v3
+      - uses: actions/cache@v3
         with:
           path: Library
-          key: Library-${{ hashFiles('Assets/**', 'Packages/**', 'ProjectSettings/**') }}
+          key: Library-${{ hashFiles('Assets/**','Packages/**','ProjectSettings/**') }}
           restore-keys: Library-
 
-      - name: Build project
+      - name: Build
+        id: buildStep
         uses: game-ci/unity-builder@v4
+        continue-on-error: true
         env:
           UNITY_LICENSE: ${{ secrets.UNITY_LICENSE }}
           UNITY_EMAIL: ${{ secrets.UNITY_EMAIL }}
@@ -65,15 +65,31 @@ jobs:
             cp "$APK_PATH" Subway-Surfers-Resurferd-Android.apk
           fi
 
-      - name: Upload artifact
-        uses: actions/upload-artifact@v4
+      # Upload build artifacts
+      - uses: actions/upload-artifact@v4
         with:
           name: release-${{ matrix.targetPlatform }}
           path: |
-            ABUPPLUS-${{ matrix.targetPlatform }}.zip
-            Subway-Surfers-Resurferd.apk
+            Subway-Surfers-Resurferd-${{ matrix.targetPlatform }}.zip
+            Subway-Surfers-Resurferd-Android.apk
           if-no-files-found: ignore
-  
+
+      # ✅ Save emoji build status
+      - name: Save status
+        if: always()
+        run: |
+          if [ "${{ steps.buildStep.outcome }}" = "success" ]; then
+            echo "✅ ${{ matrix.targetPlatform }}" > status.txt
+          else
+            echo "❌ ${{ matrix.targetPlatform }}" > status.txt
+          fi
+
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: status-${{ matrix.targetPlatform }}
+          path: status.txt
+
   release:
     name: Create prerelease
     if: always()
@@ -81,18 +97,14 @@ jobs:
     runs-on: ubuntu-latest
 
     steps:
-      - name: Download artifacts
-        uses: actions/download-artifact@v4
+      - uses: actions/download-artifact@v4
         with:
           path: artifacts
         continue-on-error: true
 
-      - name: Merge build status
+      - name: Merge status
         run: |
-          cat artifacts/status-*/build-status.txt > BUILD_STATUS.md || echo "No status found"
-
-      - name: Show status
-        run: cat BUILD_STATUS.md || true
+          cat artifacts/status-*/status.txt > BUILD_STATUS.md || echo "No status"
 
       - name: Create prerelease
         uses: softprops/action-gh-release@v2
