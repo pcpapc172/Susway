@@ -443,27 +443,37 @@ public class MysteryBoxHandler : MonoBehaviour
 			if (componentInChildren.GetClip("down") == null)
 			{
 				// try to add a project animation asset named "down" if available
-				AnimationClip downClip = Resources.Load<AnimationClip>("AnimationClip/down") ?? Resources.Load<AnimationClip>("AnimationClip/down.anim");
-				if (downClip != null)
+				AnimationClip downClipRes = Resources.Load<AnimationClip>("AnimationClip/down") ?? Resources.Load<AnimationClip>("AnimationClip/down.anim");
+				if (downClipRes != null)
 				{
+					componentInChildren.AddClip(downClipRes, "down");
+				}
+				else if (downClip != null)
+				{
+					// use serialized clip if assigned in inspector
 					componentInChildren.AddClip(downClip, "down");
 				}
 				else
 				{
 					string clipListDown = "<null>";
-					if (componentInChildren != null)
+					System.Text.StringBuilder sbDown = new System.Text.StringBuilder();
+					foreach (AnimationState s in componentInChildren)
 					{
-						System.Text.StringBuilder sbDown = new System.Text.StringBuilder();
-						foreach (AnimationState s in componentInChildren)
-						{
-							sbDown.Append(s.name).Append(",");
-						}
-						clipListDown = sbDown.ToString().TrimEnd(',');
+						sbDown.Append(s.name).Append(",");
 					}
-					Debug.LogWarning("MysteryBoxHandler: 'down' clip not found on box Animation and no asset 'AnimationClip/down' found to add. Available clips: " + clipListDown);
+					clipListDown = sbDown.ToString().TrimEnd(',');
+					Debug.LogWarning("MysteryBoxHandler: 'down' clip not found on box Animation and no asset 'AnimationClip/down' or serialized downClip found to add. Available clips: " + clipListDown);
 				}
 			}
-			componentInChildren.Play("down");
+			// Only play if the clip/state actually exists to avoid NullReferenceExceptions
+			if (componentInChildren.GetClip("down") != null && componentInChildren["down"] != null)
+			{
+				componentInChildren.Play("down");
+			}
+			else
+			{
+				Debug.LogWarning("MysteryBoxHandler: attempted to Play 'down' but clip/state is missing on the box animation.");
+			}
 		}
 	}
 
@@ -514,31 +524,42 @@ public class MysteryBoxHandler : MonoBehaviour
 		{
 			if (animation.GetClip("up") == null)
 			{
-				AnimationClip upClip = Resources.Load<AnimationClip>("AnimationClip/up") ?? Resources.Load<AnimationClip>("AnimationClip/up.anim");
-				if (upClip != null)
+				AnimationClip upClipRes = Resources.Load<AnimationClip>("AnimationClip/up") ?? Resources.Load<AnimationClip>("AnimationClip/up.anim");
+				if (upClipRes != null)
 				{
+					animation.AddClip(upClipRes, "up");
+				}
+				else if (upClip != null)
+				{
+					// use serialized clip if assigned in inspector
 					animation.AddClip(upClip, "up");
 				}
-					else
+				else
+				{
+					string clipListUp = "<null>";
+					System.Text.StringBuilder sbUp = new System.Text.StringBuilder();
+					foreach (AnimationState s in animation)
 					{
-						string clipListUp = "<null>";
-						if (animation != null)
-						{
-						System.Text.StringBuilder sbUp = new System.Text.StringBuilder();
-						foreach (AnimationState s in animation)
-						{
-							sbUp.Append(s.name).Append(",");
-						}
-							clipListUp = sbUp.ToString().TrimEnd(',');
-						}
-						Debug.LogWarning("MysteryBoxHandler: 'up' clip not found on box Animation and no asset 'AnimationClip/up' found to add. Available clips: " + clipListUp);
+						sbUp.Append(s.name).Append(",");
 					}
+					clipListUp = sbUp.ToString().TrimEnd(',');
+					Debug.LogWarning("MysteryBoxHandler: 'up' clip not found on box Animation and no asset 'AnimationClip/up' or serialized upClip found to add. Available clips: " + clipListUp);
+				}
 			}
-			animation.Play("up");
-			while (animation["up"].normalizedTime < 0.5f)
-		{
-			yield return null;
-		}
+			// Only Play/wait if the clip/state exists to avoid NullReferenceExceptions
+			if (animation.GetClip("up") != null && animation["up"] != null)
+			{
+				animation.Play("up");
+				while (animation["up"].normalizedTime < 0.5f)
+				{
+					yield return null;
+				}
+			}
+			else
+			{
+				// no animation to play - proceed without waiting
+				Debug.LogWarning("MysteryBoxHandler: no 'up' animation available on box; continuing without play/wait.");
+			}
 		}
 		_maySetTimeScale = true;
 		if (reward.type == MysteryBoxRewardType.coins)
