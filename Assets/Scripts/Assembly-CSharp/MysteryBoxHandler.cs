@@ -440,39 +440,21 @@ public class MysteryBoxHandler : MonoBehaviour
 		Animation componentInChildren = _boxes[_boxCurrent].GetComponentInChildren<Animation>();
 		if (componentInChildren != null)
 		{
-			if (componentInChildren.GetClip("down") == null)
+			string clipName = GetOrAddClip(componentInChildren, "down", downClip, "AnimationClip/down", "AnimationClip/down.anim");
+			if (clipName != null)
 			{
-				// try to add a project animation asset named "down" if available
-				AnimationClip downClipRes = Resources.Load<AnimationClip>("AnimationClip/down") ?? Resources.Load<AnimationClip>("AnimationClip/down.anim");
-				if (downClipRes != null)
+				if (componentInChildren[clipName] != null)
 				{
-					componentInChildren.AddClip(downClipRes, "down");
-				}
-				else if (downClip != null)
-				{
-					// use serialized clip if assigned in inspector
-					componentInChildren.AddClip(downClip, "down");
+					componentInChildren.Play(clipName);
 				}
 				else
 				{
-					string clipListDown = "<null>";
-					System.Text.StringBuilder sbDown = new System.Text.StringBuilder();
-					foreach (AnimationState s in componentInChildren)
-					{
-						sbDown.Append(s.name).Append(",");
-					}
-					clipListDown = sbDown.ToString().TrimEnd(',');
-					Debug.LogWarning("MysteryBoxHandler: 'down' clip not found on box Animation and no asset 'AnimationClip/down' or serialized downClip found to add. Available clips: " + clipListDown);
+					Debug.LogWarning("MysteryBoxHandler: attempted to Play 'down' but clip/state is missing on the box animation.");
 				}
-			}
-			// Only play if the clip/state actually exists to avoid NullReferenceExceptions
-			if (componentInChildren.GetClip("down") != null && componentInChildren["down"] != null)
-			{
-				componentInChildren.Play("down");
 			}
 			else
 			{
-				Debug.LogWarning("MysteryBoxHandler: attempted to Play 'down' but clip/state is missing on the box animation.");
+				Debug.LogWarning("MysteryBoxHandler: 'down' clip not found on box Animation and no asset 'AnimationClip/down' or serialized downClip found to add. Available clips: " + GetClipList(componentInChildren));
 			}
 		}
 	}
@@ -522,42 +504,25 @@ public class MysteryBoxHandler : MonoBehaviour
 		Animation animation = box.GetComponentInChildren<Animation>();
 		if (animation != null)
 		{
-			if (animation.GetClip("up") == null)
+			string clipName = GetOrAddClip(animation, "up", upClip, "AnimationClip/up", "AnimationClip/up.anim");
+			if (clipName != null)
 			{
-				AnimationClip upClipRes = Resources.Load<AnimationClip>("AnimationClip/up") ?? Resources.Load<AnimationClip>("AnimationClip/up.anim");
-				if (upClipRes != null)
+				if (animation[clipName] != null)
 				{
-					animation.AddClip(upClipRes, "up");
-				}
-				else if (upClip != null)
-				{
-					// use serialized clip if assigned in inspector
-					animation.AddClip(upClip, "up");
+					animation.Play(clipName);
+					while (animation[clipName].normalizedTime < 0.5f)
+					{
+						yield return null;
+					}
 				}
 				else
 				{
-					string clipListUp = "<null>";
-					System.Text.StringBuilder sbUp = new System.Text.StringBuilder();
-					foreach (AnimationState s in animation)
-					{
-						sbUp.Append(s.name).Append(",");
-					}
-					clipListUp = sbUp.ToString().TrimEnd(',');
-					Debug.LogWarning("MysteryBoxHandler: 'up' clip not found on box Animation and no asset 'AnimationClip/up' or serialized upClip found to add. Available clips: " + clipListUp);
-				}
-			}
-			// Only Play/wait if the clip/state exists to avoid NullReferenceExceptions
-			if (animation.GetClip("up") != null && animation["up"] != null)
-			{
-				animation.Play("up");
-				while (animation["up"].normalizedTime < 0.5f)
-				{
-					yield return null;
+					Debug.LogWarning("MysteryBoxHandler: attempted to Play 'up' but clip/state is missing on the box animation.");
 				}
 			}
 			else
 			{
-				// no animation to play - proceed without waiting
+				Debug.LogWarning("MysteryBoxHandler: 'up' clip not found on box Animation and no asset 'AnimationClip/up' or serialized upClip found to add. Available clips: " + GetClipList(animation));
 				Debug.LogWarning("MysteryBoxHandler: no 'up' animation available on box; continuing without play/wait.");
 			}
 		}
@@ -873,6 +838,62 @@ public class MysteryBoxHandler : MonoBehaviour
 			break;
 		}
 		return result;
+	}
+
+	private string GetOrAddClip(Animation anim, string baseName, AnimationClip serializedClip, string resourcePath, string resourcePathAlt)
+	{
+		string clipName = FindClipName(anim, baseName);
+		if (!string.IsNullOrEmpty(clipName))
+		{
+			return clipName;
+		}
+		AnimationClip clip = null;
+		if (!string.IsNullOrEmpty(resourcePath))
+		{
+			clip = Resources.Load<AnimationClip>(resourcePath);
+		}
+		if (clip == null && !string.IsNullOrEmpty(resourcePathAlt))
+		{
+			clip = Resources.Load<AnimationClip>(resourcePathAlt);
+		}
+		if (clip != null)
+		{
+			anim.AddClip(clip, baseName);
+			return baseName;
+		}
+		if (serializedClip != null)
+		{
+			anim.AddClip(serializedClip, baseName);
+			return baseName;
+		}
+		return null;
+	}
+
+	private string FindClipName(Animation anim, string baseName)
+	{
+		if (anim == null)
+		{
+			return null;
+		}
+		if (anim.GetClip(baseName) != null)
+		{
+			return baseName;
+		}
+		foreach (AnimationState state in anim)
+		{
+			if (state.name.Equals(baseName, StringComparison.OrdinalIgnoreCase))
+			{
+				return state.name;
+			}
+		}
+		foreach (AnimationState state in anim)
+		{
+			if (state.name.IndexOf(baseName, StringComparison.OrdinalIgnoreCase) >= 0)
+			{
+				return state.name;
+			}
+		}
+		return null;
 	}
 
 	// Helper to list clips on an Animation component for easier debug messages.

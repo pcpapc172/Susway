@@ -1,3 +1,4 @@
+using System;
 using System.Collections;
 using UnityEngine;
 
@@ -76,19 +77,9 @@ public class CharacterPickupParticles : MonoBehaviour
 
 	private void DoCoinEFX()
 	{
-		float zAngle = Random.Range(0f, 360f);
+		float zAngle = UnityEngine.Random.Range(0f, 360f);
 		CoinEFX.transform.Rotate(0f, 0f, zAngle);
-		Animation anim = CoinEFX.GetComponent<Animation>();
-		if (anim != null && anim.GetClip("pickup") != null)
-		{
-			anim.Stop("pickup");
-			anim.Play("pickup");
-			StartCoroutine(AnimateAlpha(CoinEFX, anim["pickup"].length));
-		}
-		else
-		{
-			Debug.LogWarning("CharacterPickupParticles: 'pickup' clip not found on CoinEFX Animation. Available clips: " + GetClipList(anim));
-		}
+		PlayPickupAnimation(CoinEFX);
 	}
 
 	public void PickedUpPowerUp()
@@ -100,19 +91,9 @@ public class CharacterPickupParticles : MonoBehaviour
 	public void PickedUpDefaultPowerUp()
 	{
 		DoCoinEFX();
-		float zAngle = Random.Range(0f, 360f);
+		float zAngle = UnityEngine.Random.Range(0f, 360f);
 		PowerUpEFX.transform.Rotate(0f, 0f, zAngle);
-		Animation anim = PowerUpEFX.GetComponent<Animation>();
-		if (anim != null && anim.GetClip("pickup") != null)
-		{
-			anim.Stop("pickup");
-			anim.Play("pickup");
-			StartCoroutine(AnimateAlpha(PowerUpEFX, anim["pickup"].length));
-		}
-		else
-		{
-			Debug.LogWarning("CharacterPickupParticles: 'pickup' clip not found on PowerUpEFX Animation. Available clips: " + GetClipList(anim));
-		}
+		PlayPickupAnimation(PowerUpEFX);
 	}
 
 	private void AddPickupClipIfMissing(GameObject efx)
@@ -122,7 +103,7 @@ public class CharacterPickupParticles : MonoBehaviour
 		Animation anim = efx.GetComponent<Animation>();
 		if (anim == null)
 			return;
-		if (anim.GetClip("pickup") == null)
+		if (FindClipName(anim, "pickup") == null)
 		{
 			if (pickupClip != null)
 			{
@@ -145,6 +126,57 @@ public class CharacterPickupParticles : MonoBehaviour
 			sb.Append(s.name).Append(",");
 		}
 		return sb.ToString().TrimEnd(',');
+	}
+
+	private string FindClipName(Animation anim, string baseName)
+	{
+		if (anim == null)
+		{
+			return null;
+		}
+		if (anim.GetClip(baseName) != null)
+		{
+			return baseName;
+		}
+		foreach (AnimationState state in anim)
+		{
+			if (state.name.Equals(baseName, StringComparison.OrdinalIgnoreCase))
+			{
+				return state.name;
+			}
+		}
+		foreach (AnimationState state in anim)
+		{
+			if (state.name.IndexOf(baseName, StringComparison.OrdinalIgnoreCase) >= 0)
+			{
+				return state.name;
+			}
+		}
+		return null;
+	}
+
+	private void PlayPickupAnimation(GameObject efx)
+	{
+		if (efx == null)
+		{
+			return;
+		}
+		Animation anim = efx.GetComponent<Animation>();
+		if (anim == null)
+		{
+			return;
+		}
+		string clipName = FindClipName(anim, "pickup");
+		if (clipName != null && anim[clipName] != null)
+		{
+			anim.Stop(clipName);
+			anim.Play(clipName);
+			StartCoroutine(AnimateAlpha(efx, anim[clipName].length));
+		}
+		else
+		{
+			Debug.LogWarning("CharacterPickupParticles: 'pickup' clip not found on " + efx.name + " Animation. Available clips: " + GetClipList(anim));
+		}
 	}
 
 	private IEnumerator AnimateAlpha(GameObject efx, float time)

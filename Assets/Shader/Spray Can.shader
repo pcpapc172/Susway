@@ -4,7 +4,7 @@
     {
         _MainTex ("Texture", 2D) = "white" {}
         _KeyColor ("Key Color", Color) = (1,1,0,1)
-        _Threshold ("Threshold", Range(0,1)) = 0.3
+        _Threshold ("Threshold", Range(0,5)) = 0.3
     }
 
     SubShader
