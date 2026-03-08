@@ -62,7 +62,14 @@ public class DailyWord : MonoBehaviour
 
 	private DateTime GMTTimeS;
 
-	private string secretkey = "aIN0UXP4NNoANVGi5w3raGAFN1n5OLQZFDhwjs6HoX";
+	private static readonly string SECRET_KEY = "aIN0UXP4NNoANVGi5w3raGAFN1n5OLQZFDhwjs6HoX";
+
+	private static readonly string[] WORDS = new string[30]
+	{
+		"GAME", "WHEEL", "CAB", "TOY", "TRIP", "LIGHT", "RAIL", "PIT", "FAN", "PLAZA",
+		"SIGN", "DOOR", "BELL", "CURVE", "CRASH", "BOX", "TUBE", "SLIDE", "METRO", "ROUND",
+		"TRAIN", "CAR", "RED", "TURBO", "TRACK", "MAP", "LINE", "BUS", "CITY", "KEY",
+	};
 
 	private static DailyWord _instance;
 
@@ -123,17 +130,8 @@ public class DailyWord : MonoBehaviour
 	{
 		synchronizingNow = true;
 		key = GenerateKey();
-		WWWForm postData = new WWWForm();
-		postData.AddField("key", key);
-		WWW www = new WWW("http://0.0.0.0:80/hr_dailyquests.php", postData);
-		yield return www;
-		if (www.error != null)
-		{
-			Debug.LogWarning("DailyWord: www.error: " + www.error.ToString());
-			synchronizingNow = false;
-			yield break;
-		}
-		string[] rawData = www.text.Split(';');
+		string response = LocalDailyWordPayload(key);
+		string[] rawData = response.Split(';');
 		if (!SHA1HashCheck(rawData))
 		{
 			Debug.LogError("DailyWord: Checksum failed");
@@ -145,6 +143,7 @@ public class DailyWord : MonoBehaviour
 		OverWriteDeviceMemory();
 		SendWordAndExpireTime();
 		synchronizingNow = false;
+		yield break;
 	}
 
 	private DateTime ConvertFromUnixTimestamp(double timestamp)
@@ -175,7 +174,7 @@ public class DailyWord : MonoBehaviour
 			return false;
 		}
 		string text = rawData[3];
-		string sHA1Hash = GetSHA1Hash(rawData[0] + rawData[1] + rawData[2] + key + secretkey + rawData[4] + rawData[5] + rawData[6] + rawData[7] + rawData[8] + rawData[9]);
+		string sHA1Hash = GetSHA1Hash(rawData[0] + rawData[1] + rawData[2] + key + SECRET_KEY + rawData[4] + rawData[5] + rawData[6] + rawData[7] + rawData[8] + rawData[9]);
 		if (text == sHA1Hash)
 		{
 			return true;
@@ -231,6 +230,25 @@ public class DailyWord : MonoBehaviour
 		stringBuilder.Append(RandomNumber(0, 999));
 		stringBuilder.Append(RandomString(2));
 		return stringBuilder.ToString();
+	}
+
+	private string LocalDailyWordPayload(string clientKey)
+	{
+		DateTime now = DateTime.UtcNow;
+		DateTime nextReset = new DateTime(now.Year, now.Month, now.Day, 1, 0, 0, DateTimeKind.Utc);
+		if (now >= nextReset)
+		{
+			nextReset = nextReset.AddDays(1);
+		}
+		int expireSeconds = (int)(nextReset - now).TotalSeconds;
+		int dayIndex = now.DayOfYear - 1;
+		int wordIndex = (nextReset.Day - 1) % WORDS.Length;
+		string word = WORDS[wordIndex];
+		string payloadSource =
+			$"{dayIndex};{word};{now.Year};" +
+			$"{GetSHA1Hash($"{dayIndex}{word}{now.Year}{clientKey}{SECRET_KEY}{now.Month}{now.Day}{now.Hour}{now.Minute}{now.Second}{expireSeconds}")};" +
+			$"{now.Month};{now.Day};{now.Hour};{now.Minute};{now.Second};{expireSeconds}";
+		return payloadSource;
 	}
 
 	public static DailyWordReward GetRewardForDay(int dayIndex)
