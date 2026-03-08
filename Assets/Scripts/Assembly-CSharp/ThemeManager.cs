@@ -8,6 +8,9 @@ public class ThemeManager
     private Theme theme = null;
     // When true, manual changes should not be overridden by automatic season checks
     private bool manualOverride = false;
+    // PlayerPrefs keys for persisting manual theme choice
+    private const string PREF_MANUAL_OVERRIDE = "MANUAL_THEME_OVERRIDE";
+    private const string PREF_MANUAL_THEME_NAME = "MANUAL_THEME_NAME";
 
 	private DateTime _themeExpirationDate;
 
@@ -79,6 +82,25 @@ public class ThemeManager
         {
             this.OnChangeTheme(theme);
         }
+        // Persist manual override state
+        try
+        {
+            if (manualOverride)
+            {
+                PlayerPrefs.SetInt(PREF_MANUAL_OVERRIDE, 1);
+                PlayerPrefs.SetString(PREF_MANUAL_THEME_NAME, theme != null ? theme.Name : string.Empty);
+                PlayerPrefs.Save();
+            }
+            else
+            {
+                PlayerPrefs.DeleteKey(PREF_MANUAL_OVERRIDE);
+                PlayerPrefs.DeleteKey(PREF_MANUAL_THEME_NAME);
+            }
+        }
+        catch (System.Exception)
+        {
+            // ignore PlayerPrefs failures
+        }
     }
 
 	public DateTime themeExpirationDate
@@ -107,6 +129,31 @@ public class ThemeManager
     {
         // Ensure a sane default theme so callers don't observe a null Theme
         theme = Theme.NORMAL;
+        // Load persisted manual override if present
+        try
+        {
+            if (PlayerPrefs.GetInt(PREF_MANUAL_OVERRIDE, 0) != 0)
+            {
+                string name = PlayerPrefs.GetString(PREF_MANUAL_THEME_NAME, string.Empty);
+                Theme t = Theme.FindByName(name);
+                if (t != null)
+                {
+                    manualOverride = true;
+                    theme = t;
+                    if (this.OnChangeTheme != null)
+                        this.OnChangeTheme(theme);
+                }
+                else
+                {
+                    PlayerPrefs.DeleteKey(PREF_MANUAL_OVERRIDE);
+                    PlayerPrefs.DeleteKey(PREF_MANUAL_THEME_NAME);
+                }
+            }
+        }
+        catch (System.Exception)
+        {
+            // ignore PlayerPrefs issues
+        }
     }
 
 	public void ForceRefresh()

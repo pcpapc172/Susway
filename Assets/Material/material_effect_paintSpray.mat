@@ -8,7 +8,7 @@ Material:
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
   m_Name: material_effect_paintSpray
-  m_Shader: {fileID: 10770, guid: 0000000000000000f000000000000000, type: 0}
+  m_Shader: {fileID: 4800000, guid: f56788c73a3e444a1b95b1a84487a3af, type: 3}
   m_ShaderKeywords: UNITY_UI_ALPHACLIP _ALPHAPREMULTIPLY_ON _COLORCOLOR_ON
   m_LightmapFlags: 0
   m_EnableInstancingVariants: 0
@@ -67,7 +67,7 @@ Material:
     - _StencilOp: 0
     - _StencilReadMask: 255
     - _StencilWriteMask: 255
-    - _Threshold: 0.6
+    - _Threshold: 0.442
     - _UseUIAlphaClip: 1
     - _ZWrite: 0
     m_Colors:
@@ -75,5 +75,5 @@ Material:
     - _Color: {r: 1, g: 1, b: 0, a: 1}
     - _ColorAddSubDiff: {r: 0, g: 0, b: 0, a: 0}
     - _EmissionColor: {r: 0, g: 0, b: 0, a: 1}
-    - _KeyColor: {r: 1, g: 1, b: 0, a: 1}
+    - _KeyColor: {r: 1, g: 1, b: 0.12941177, a: 1}
     - _SoftParticleFadeParams: {r: 0, g: 0, b: 0, a: 0}
