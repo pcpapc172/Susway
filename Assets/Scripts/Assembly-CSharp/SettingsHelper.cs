@@ -39,13 +39,38 @@ public class SettingsHelper : MonoBehaviour
 
 	private void OnEnable()
 	{
+		// Ensure the season button exists in the settings grid so users can toggle themes
+		if (seasonButton != null && seasonButtonInstance == null)
+		{
+			seasonButtonInstance = NGUITools.AddChild(grid.gameObject, seasonButton);
+			seasonButtonInstance.name = "3 Season";
+
+			// Ensure the instantiated prefab has a ThemeButton and is wired to call it on click
+			ThemeButton tb = seasonButtonInstance.GetComponent<ThemeButton>();
+			if (tb == null)
+			{
+				tb = seasonButtonInstance.AddComponent<ThemeButton>();
+			}
+			UIEventListener uel = UIEventListener.Get(seasonButtonInstance);
+			// replace any existing handler to ensure it calls our ThemeButton.ToggleTheme
+			uel.onClick = (GameObject go) =>
+			{
+				try { tb.ToggleTheme(); } catch (System.Exception ex) { Debug.LogWarning("SeasonButton click handler error: " + ex); }
+			};
+
+			// Fix common misspelling in prefab labels at runtime if present
+			UILabel[] labels = seasonButtonInstance.GetComponentsInChildren<UILabel>(true);
+			foreach (UILabel lbl in labels)
+			{
+				if (!string.IsNullOrEmpty(lbl.text) && lbl.text.Contains("Seasonel"))
+				{
+					lbl.text = lbl.text.Replace("Seasonel", "Seasonal");
+				}
+			}
+		}
+
 		if (PlayerInfo.Instance.currentSeasonAvailable == PlayerInfo.Season.halloween)
 		{
-			if (seasonButtonInstance == null)
-			{
-				seasonButtonInstance = NGUITools.AddChild(grid.gameObject, seasonButton);
-				seasonButtonInstance.name = "3 Season";
-			}
 			if (gameCenterButton != null)
 			{
 				fillet.localScale = new Vector3(fillet.localScale.x, originalFilletScale, 1f);

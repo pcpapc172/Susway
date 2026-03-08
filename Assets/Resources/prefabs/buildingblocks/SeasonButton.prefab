@@ -197,7 +197,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: d37f8ccaa4fce62bffd4aceb1eb3cb24, type: 1}
   m_Name:
   target: {fileID: 1709254077376921}
-  functionName: Click
+  functionName: ToggleTheme
   trigger: 0
   includeChildren: 0
 --- !u!114 &114372920208702427

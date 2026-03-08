@@ -44,8 +44,12 @@ public class HouseKeeper : MonoBehaviour
 
 	private void CheckForSeason()
 	{
-		DateTime seasonExpirationDateTime = GetSeasonExpirationDateTime();
-		ThemeManager.Instance.themeExpirationDate = seasonExpirationDateTime;
+        DateTime seasonExpirationDateTime = GetSeasonExpirationDateTime();
+        // Don't overwrite a manual override's expiration date
+        if (!ThemeManager.Instance.ManualOverride)
+        {
+            ThemeManager.Instance.themeExpirationDate = seasonExpirationDateTime;
+        }
 		PlayerInfo instance = PlayerInfo.Instance;
 		string valueString = string.Empty;
 		if (OnlineSettings.instance.TryGetValue("season", out valueString))
@@ -81,11 +85,15 @@ public class HouseKeeper : MonoBehaviour
 				nORMAL = Globals.UPDATE_DEFAULT_THEME;
 				Debug.Log("Default theme");
 			}
-			if (PlayerPrefs.GetInt("OPTION_SEASON", 1) != 0)
-			{
-				instance.currentSeasonPicked = instance.currentSeasonAvailable;
-				ThemeManager.Instance.Theme = nORMAL;
-			}
+            if (PlayerPrefs.GetInt("OPTION_SEASON", 1) != 0)
+            {
+                instance.currentSeasonPicked = instance.currentSeasonAvailable;
+                // Respect manual override if present
+                if (!ThemeManager.Instance.ManualOverride)
+                {
+                    ThemeManager.Instance.Theme = nORMAL;
+                }
+            }
 			else
 			{
 				ThemeManager.Instance.Theme = Theme.NORMAL;
@@ -94,31 +102,38 @@ public class HouseKeeper : MonoBehaviour
 		else
 		{
 			instance.currentSeasonAvailable = Globals.UPDATE_DEFAULT_SEASON;
-			if (PlayerPrefs.GetInt("OPTION_SEASON", 1) != 0)
-			{
-				instance.currentSeasonPicked = instance.currentSeasonAvailable;
-				ThemeManager.Instance.Theme = Globals.UPDATE_DEFAULT_THEME;
-				Debug.Log("Default theme: not online settings");
-			}
+            if (PlayerPrefs.GetInt("OPTION_SEASON", 1) != 0)
+            {
+                instance.currentSeasonPicked = instance.currentSeasonAvailable;
+                if (!ThemeManager.Instance.ManualOverride)
+                {
+                    ThemeManager.Instance.Theme = Globals.UPDATE_DEFAULT_THEME;
+                    Debug.Log("Default theme: not online settings");
+                }
+            }
 			else
 			{
 				ThemeManager.Instance.Theme = Theme.NORMAL;
 			}
 		}
-		if (PlayerInfo.Instance.currentSeasonAvailable != PlayerInfo.Season.none)
-		{
-			if (ThemeManager.Instance.themeForSeason(PlayerInfo.Instance.currentSeasonAvailable).TimeToExpire.Ticks < 0)
-			{
-				Debug.Log("Theme expired!");
-				ThemeManager.Instance.Theme = Theme.NORMAL;
-				instance.currentSeasonAvailable = PlayerInfo.Season.none;
-				instance.currentSeasonPicked = instance.currentSeasonAvailable;
-			}
-		}
-		else
-		{
-			ThemeManager.Instance.Theme = Theme.NORMAL;
-		}
+        if (PlayerInfo.Instance.currentSeasonAvailable != PlayerInfo.Season.none)
+        {
+            // Respect manual override: do not auto-revert if the user manually set a theme
+            if (!ThemeManager.Instance.ManualOverride && ThemeManager.Instance.themeForSeason(PlayerInfo.Instance.currentSeasonAvailable).TimeToExpire.Ticks < 0)
+            {
+                Debug.Log("Theme expired!");
+                ThemeManager.Instance.Theme = Theme.NORMAL;
+                instance.currentSeasonAvailable = PlayerInfo.Season.none;
+                instance.currentSeasonPicked = instance.currentSeasonAvailable;
+            }
+        }
+        else
+        {
+            if (!ThemeManager.Instance.ManualOverride)
+            {
+                ThemeManager.Instance.Theme = Theme.NORMAL;
+            }
+        }
 	}
 
 	public DateTime GetSeasonExpirationDateTime()
