@@ -54,16 +54,22 @@ jobs:
         env:
           UNITY_EDITOR: C:\Program Files\Unity\Hub\Editor\2019.4.41f2\Editor\Unity.exe
         run: |
-          & $env:UNITY_EDITOR `
-            -batchmode `
-            -nographics `
-            -quit `
-            -projectPath $env:GITHUB_WORKSPACE `
-            -executeMethod CIBuilder.Build `
-            -ciTarget ${{ matrix.targetPlatform }} `
-            -logFile -
-          if ($LASTEXITCODE -ne 0) {
-            throw "Unity exited with code $LASTEXITCODE"
+          $log = Join-Path $env:RUNNER_TEMP "unity-${{ matrix.targetPlatform }}.log"
+          $arguments = @(
+            '-quit',
+            '-projectPath', $env:GITHUB_WORKSPACE,
+            '-executeMethod', 'CIBuilder.Build',
+            '-ciTarget', '${{ matrix.targetPlatform }}',
+            '-logFile', $log
+          )
+          $process = Start-Process `
+            -FilePath $env:UNITY_EDITOR `
+            -ArgumentList $arguments `
+            -Wait `
+            -PassThru
+          Get-Content -LiteralPath $log
+          if ($process.ExitCode -ne 0) {
+            throw "Unity exited with code $($process.ExitCode)"
           }
 
       - name: Verify build output
