@@ -14,29 +14,13 @@ concurrency:
   cancel-in-progress: true
 
 jobs:
-  license:
-    name: Check Unity Pro credentials
-    runs-on: ubuntu-latest
-    steps:
-      - name: Require Unity Pro secrets
-        env:
-          UNITY_SERIAL: ${{ secrets.UNITY_SERIAL }}
-          UNITY_EMAIL: ${{ secrets.UNITY_EMAIL }}
-          UNITY_PASSWORD: ${{ secrets.UNITY_PASSWORD }}
-        shell: bash
-        run: |
-          if [[ -z "$UNITY_SERIAL" || -z "$UNITY_EMAIL" || -z "$UNITY_PASSWORD" ]]; then
-            echo "::error::Add UNITY_SERIAL, UNITY_EMAIL, and UNITY_PASSWORD as repository Actions secrets."
-            exit 1
-          fi
-
   build:
     name: ${{ matrix.targetPlatform }}
-    needs: license
-    runs-on: ubuntu-latest
-    timeout-minutes: 60
+    runs-on: [self-hosted, Windows, X64, unity-2019]
+    timeout-minutes: 90
     strategy:
       fail-fast: false
+      max-parallel: 1
       matrix:
         targetPlatform:
           - StandaloneWindows64
@@ -48,30 +32,50 @@ jobs:
       - name: Check out repository
         uses: actions/checkout@v4
 
+      - name: Verify Unity installation
+        shell: powershell
+        env:
+          UNITY_EDITOR: C:\Program Files\Unity\Hub\Editor\2019.4.41f2\Editor\Unity.exe
+        run: |
+          if (-not (Test-Path -LiteralPath $env:UNITY_EDITOR)) {
+            throw "Unity 2019.4.41f2 is not installed at $env:UNITY_EDITOR"
+          }
+
       - name: Cache Unity Library
         uses: actions/cache@v4
         with:
           path: Library
-          key: Library-${{ matrix.targetPlatform }}-${{ hashFiles('Assets/**', 'Packages/**', 'ProjectSettings/**') }}
+          key: Library-${{ runner.name }}-${{ matrix.targetPlatform }}-${{ hashFiles('Assets/**', 'Packages/**', 'ProjectSettings/**') }}
           restore-keys: |
-            Library-${{ matrix.targetPlatform }}-
+            Library-${{ runner.name }}-${{ matrix.targetPlatform }}-
 
       - name: Build
-        uses: game-ci/unity-builder@v4
+        shell: powershell
         env:
-          UNITY_SERIAL: ${{ secrets.UNITY_SERIAL }}
-          UNITY_EMAIL: ${{ secrets.UNITY_EMAIL }}
-          UNITY_PASSWORD: ${{ secrets.UNITY_PASSWORD }}
-        with:
-          unityVersion: 2019.4.41f2
-          targetPlatform: ${{ matrix.targetPlatform }}
-          buildsPath: build
+          UNITY_EDITOR: C:\Program Files\Unity\Hub\Editor\2019.4.41f2\Editor\Unity.exe
+        run: |
+          & $env:UNITY_EDITOR `
+            -batchmode `
+            -nographics `
+            -quit `
+            -projectPath $env:GITHUB_WORKSPACE `
+            -executeMethod CIBuilder.Build `
+            -ciTarget ${{ matrix.targetPlatform }} `
+            -logFile -
+          if ($LASTEXITCODE -ne 0) {
+            throw "Unity exited with code $LASTEXITCODE"
+          }
 
       - name: Verify build output
-        shell: bash
+        shell: powershell
         run: |
-          test -d "build/${{ matrix.targetPlatform }}"
-          test -n "$(find "build/${{ matrix.targetPlatform }}" -type f -print -quit)"
+          $output = "build/${{ matrix.targetPlatform }}"
+          if (-not (Test-Path -LiteralPath $output)) {
+            throw "Missing build directory: $output"
+          }
+          if (-not (Get-ChildItem -LiteralPath $output -File -Recurse | Select-Object -First 1)) {
+            throw "Build directory is empty: $output"
+          }
 
       - name: Upload build
         uses: actions/upload-artifact@v4
