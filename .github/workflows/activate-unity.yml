@@ -1,0 +1,41 @@
+name: Request Unity activation file
+
+on:
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  request:
+    name: Generate GameCI activation request
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+
+    steps:
+      - name: Generate Unity activation request
+        id: activation
+        uses: game-ci/unity-request-activation-file@v2
+
+      - name: Upload activation request
+        uses: actions/upload-artifact@v4
+        with:
+          name: unity-activation-request
+          path: ${{ steps.activation.outputs.filePath }}
+          if-no-files-found: error
+          retention-days: 1
+
+      - name: Explain next steps
+        run: |
+          cat >> "$GITHUB_STEP_SUMMARY" <<'EOF'
+          ## Activate Unity for GameCI
+
+          1. Download the `unity-activation-request` artifact and extract the `.alf` file.
+          2. Upload it at https://license.unity3d.com/manual while signed into your Unity account.
+          3. If Unity offers Personal activation, download the resulting `.ulf` file.
+          4. Add the complete `.ulf` contents as the repository secret `UNITY_LICENSE`.
+          5. Also add `UNITY_EMAIL` and `UNITY_PASSWORD`, then rerun **Build all platforms**.
+
+          Unity may reject Personal manual activation because this flow is no longer officially supported.
+          Never commit either activation file to the repository.
+          EOF
