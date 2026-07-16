@@ -20,6 +20,7 @@ TextureImporter:
     heightScale: 0.25
     normalMapFilter: 0
   isReadable: 0
+  alphaIsTransparency: 1
   grayScaleToAlpha: 0
   generateCubemap: 0
   textureFormat: 2
